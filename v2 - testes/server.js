@@ -4,17 +4,34 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-// MUDANÇA: Usa a porta do ambiente de produção ou 3000 localmente
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// --- MUDANÇA: CONFIGURAÇÃO EXPLÍCITA DO CORS ---
+
+// 1. Defina a URL do seu front-end
+const frontendURL = 'https://nortis-app-matheus.onrender.com'; // << IMPORTANTE: Use a URL do seu site estático aqui
+
+// 2. Configure as opções do CORS
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permite requisições da sua URL de front-end e requisições sem 'origin' (como de apps mobile ou Postman)
+    if (!origin || origin === frontendURL) {
+      callback(null, true);
+    } else {
+      callback(new Error('Não permitido pela política de CORS'));
+    }
+  }
+};
+
+// 3. Use as opções no middleware do CORS
+app.use(cors(corsOptions));
+
+// --- FIM DA MUDANÇA ---
+
+
 app.use(express.json());
 
-// --- CONFIGURAÇÃO DA PERSISTÊNCIA (ADAPTADO PARA RENDER) ---
-// O disco persistente da Render é montado em /var/data
-// Verificamos se estamos no ambiente Render pela variável de ambiente RENDER
 const DB_PATH = path.join(__dirname, 'database.json');
-
 let financas;
 
 function loadDatabase() {
