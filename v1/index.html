@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fin.IA - Seu Guru Financeiro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Fin.<span>IA</span></h1>
+        <p>Olá, bem-vindo(a) de volta!</p>
+    </header>
+
+    <main class="container">
+        <!-- Seção de Resumo Financeiro -->
+        <section class="card summary-grid">
+            <div class="summary-item">
+                <p>Saldo Atual</p>
+                <h2 id="current-balance">R$ 0,00</h2>
+            </div>
+            <div class="summary-item">
+                <p>Receitas do Mês</p>
+                <h2 id="monthly-income" class="income">R$ 0,00</h2>
+            </div>
+            <div class="summary-item">
+                <p>Despesas do Mês</p>
+                <h2 id="monthly-expenses" class="expense">R$ 0,00</h2>
+            </div>
+        </section>
+        
+        <!-- Seção de Previsão da IA -->
+        <section class="card ai-feature">
+            <h3>🔮 Previsão da IA</h3>
+            <p id="ai-prediction">Analisando seus dados para prever seu futuro financeiro...</p>
+        </section>
+
+        <!-- Seção de Transações e Insights -->
+        <div class="content-grid">
+            <section class="card transactions">
+                <h3>Últimas Transações</h3>
+                <ul id="transaction-list">
+                    <!-- Transações serão inseridas aqui via JavaScript -->
+                </ul>
+            </section>
+
+            <section class="card ai-insights">
+                <h3>💡 Insights da IA</h3>
+                <div id="ai-insights-content">
+                    <!-- Insights serão gerados aqui via JavaScript -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Seção do Chatbot -->
+        <section class="card chatbot">
+            <h3>🤖 Converse com seu Guru Financeiro</h3>
+            <div id="chat-window">
+                <div class="chat-message bot">Olá! Como posso te ajudar a organizar suas finanças hoje?</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-user-input" placeholder="Pergunte algo...">
+                <button id="chat-send-btn">Enviar</button>
+            </div>
+        </section>
+    </main>
+    
+    <script src="script.js"></script>
+</body>
+</html>

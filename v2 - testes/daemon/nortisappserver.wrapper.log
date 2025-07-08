@@ -1,0 +1,50 @@
+2025-07-08 15:06:37 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 "C:\Users\Matheus Campanhari\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\Matheus Campanhari\Desktop\Nortis\v2 - testes\server.js" --scriptoptions= --log "NortisAppServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-07-08 15:06:37 - Started 12012
+2025-07-08 15:17:22 - Stopping nortisappserver.exe
+2025-07-08 15:17:22 - ProcessKill 12012
+2025-07-08 15:17:22 - Found child process: 1820 Name: conhost.exe
+2025-07-08 15:17:22 - Found child process: 1224 Name: node.exe
+2025-07-08 15:17:22 - Stopping process 1820
+2025-07-08 15:17:22 - Send SIGINT 1820
+2025-07-08 15:17:22 - SIGINT to 1820 failed - Killing as fallback
+2025-07-08 15:17:22 - Stopping process 1224
+2025-07-08 15:17:22 - Send SIGINT 1224
+2025-07-08 15:17:22 - SIGINT to 1224 failed - Killing as fallback
+2025-07-08 15:17:22 - Stopping process 12012
+2025-07-08 15:17:22 - Send SIGINT 12012
+2025-07-08 15:17:22 - SIGINT to 12012 failed - Killing as fallback
+2025-07-08 15:17:22 - Finished nortisappserver.exe
+2025-07-08 15:17:24 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 "C:\Users\Matheus Campanhari\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\Matheus Campanhari\Desktop\Nortis\v2 - testes\server.js" --scriptoptions= --log "NortisAppServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-07-08 15:17:24 - Started 12396
+2025-07-08 15:36:24 - Stopping nortisappserver.exe
+2025-07-08 15:36:24 - ProcessKill 12396
+2025-07-08 15:36:24 - Found child process: 4460 Name: conhost.exe
+2025-07-08 15:36:24 - Found child process: 7876 Name: node.exe
+2025-07-08 15:36:24 - Stopping process 4460
+2025-07-08 15:36:24 - Send SIGINT 4460
+2025-07-08 15:36:24 - SIGINT to 4460 failed - Killing as fallback
+2025-07-08 15:36:24 - Stopping process 7876
+2025-07-08 15:36:24 - Send SIGINT 7876
+2025-07-08 15:36:24 - SIGINT to 7876 failed - Killing as fallback
+2025-07-08 15:36:24 - Stopping process 12396
+2025-07-08 15:36:24 - Send SIGINT 12396
+2025-07-08 15:36:24 - SIGINT to 12396 failed - Killing as fallback
+2025-07-08 15:36:24 - Finished nortisappserver.exe
+2025-07-08 15:36:26 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 "C:\Users\Matheus Campanhari\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\Matheus Campanhari\Desktop\Nortis\v2 - testes\server.js" --scriptoptions= --log "NortisAppServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-07-08 15:36:26 - Started 9632
+2025-07-08 16:21:30 - Stopping nortisappserver.exe
+2025-07-08 16:21:30 - ProcessKill 9632
+2025-07-08 16:21:30 - Found child process: 12012 Name: conhost.exe
+2025-07-08 16:21:30 - Found child process: 6064 Name: node.exe
+2025-07-08 16:21:30 - Stopping process 12012
+2025-07-08 16:21:30 - Send SIGINT 12012
+2025-07-08 16:21:31 - SIGINT to 12012 failed - Killing as fallback
+2025-07-08 16:21:31 - Stopping process 6064
+2025-07-08 16:21:31 - Send SIGINT 6064
+2025-07-08 16:21:31 - SIGINT to 6064 failed - Killing as fallback
+2025-07-08 16:21:31 - Stopping process 9632
+2025-07-08 16:21:31 - Send SIGINT 9632
+2025-07-08 16:21:31 - SIGINT to 9632 failed - Killing as fallback
+2025-07-08 16:21:31 - Finished nortisappserver.exe
+2025-07-08 16:21:32 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 "C:\Users\Matheus Campanhari\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\Matheus Campanhari\Desktop\Nortis\v2 - testes\server.js" --scriptoptions= --log "NortisAppServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-07-08 16:21:32 - Started 5560

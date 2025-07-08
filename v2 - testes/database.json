@@ -1,0 +1,87 @@
+{
+  "rendaMensal": {
+    "salario": 1556.42,
+    "vale": 0
+  },
+  "vencimentos": [
+    {
+      "id": 1751329778614,
+      "nome": "Internet",
+      "diasRestantes": 2,
+      "valor": 100,
+      "icone": "fa-wifi",
+      "dataOriginal": "2025-07-10",
+      "pago": true,
+      "dataPagamento": "08/07/2025"
+    },
+    {
+      "id": 1751329790484,
+      "nome": "Cabeleireiro",
+      "diasRestantes": 0,
+      "valor": 50,
+      "icone": "fa-file-invoice-dollar",
+      "dataOriginal": "2025-07-08",
+      "pago": true,
+      "dataPagamento": "08/07/2025"
+    },
+    {
+      "id": 1751329800114,
+      "nome": "Plano Claro",
+      "diasRestantes": -3,
+      "valor": 30,
+      "icone": "fa-mobile-screen-button",
+      "dataOriginal": "2025-07-05",
+      "pago": true,
+      "dataPagamento": "07/07/2025"
+    },
+    {
+      "id": 1751329809704,
+      "nome": "Lazer",
+      "diasRestantes": -3,
+      "valor": 150,
+      "icone": "fa-file-invoice-dollar",
+      "dataOriginal": "2025-07-05",
+      "pago": true,
+      "dataPagamento": "07/07/2025"
+    },
+    {
+      "id": 1751329960958,
+      "nome": "Academia",
+      "diasRestantes": -1,
+      "valor": 90,
+      "icone": "fa-file-invoice-dollar",
+      "dataOriginal": "2025-07-07",
+      "pago": true,
+      "dataPagamento": "07/07/2025"
+    },
+    {
+      "id": 1751329969490,
+      "nome": "Mercado",
+      "diasRestantes": -3,
+      "valor": 150,
+      "icone": "fa-file-invoice-dollar",
+      "dataOriginal": "2025-07-05",
+      "pago": true,
+      "dataPagamento": "07/07/2025"
+    },
+    {
+      "id": 1751329979378,
+      "nome": "Netflix",
+      "diasRestantes": -3,
+      "valor": 12.9,
+      "icone": "fa-film",
+      "dataOriginal": "2025-07-05",
+      "pago": true,
+      "dataPagamento": "07/07/2025"
+    },
+    {
+      "id": 1751329995864,
+      "nome": "Financiamento",
+      "diasRestantes": 8,
+      "valor": 479,
+      "icone": "fa-file-invoice-dollar",
+      "dataOriginal": "2025-07-16",
+      "pago": false
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nortis - Seu Guia Financeiro</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-layout-grid">
+            
+            <aside class="left-column">
+                <header>
+                    <div class="header-main">
+                        <h1 class="header-title"></h1>
+                        <!-- MUDANÇA: Adicionado container para botões de ação do header -->
+                        <div class="header-actions">
+                            <button id="theme-toggle-btn" class="theme-toggle-btn" title="Alternar tema">
+                                <i class="fas fa-moon"></i>
+                            </button>
+                            <button id="logout-btn" class="logout-btn" title="Sair">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="current-month-indicator"></p>
+                </header>
+                <div class="card insights-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-lightbulb"></i> Insights da IA</h2>
+                        <button class="btn-generate-insight" id="btn-generate-insight" title="Gerar Análise com IA"><i class="fas fa-wand-magic-sparkles"></i></button>
+                    </div>
+                    <div class="insight-content-box">
+                        <p id="guru-insight-text">Clique no botão de análise para obter um insight sobre suas finanças.</p>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="right-column">
+                <section class="highlight-cards">
+                    <div class="card highlight-card">
+                        <div class="highlight-header"><h3>Salário</h3><button class="edit-income-btn" data-type="salario"><i class="fas fa-pencil-alt"></i></button></div>
+                        <p class="highlight-amount" id="renda-salario">R$ 0,00</p>
+                    </div>
+                    <div class="card highlight-card">
+                        <div class="highlight-header"><h3>Vale</h3><button class="edit-income-btn" data-type="vale"><i class="fas fa-pencil-alt"></i></button></div>
+                        <p class="highlight-amount" id="renda-vale">R$ 0,00</p>
+                    </div>
+                    <div class="card highlight-card total">
+                        <h3>Renda Total</h3>
+                        <p class="highlight-amount" id="renda-total">R$ 0,00</p>
+                    </div>
+                </section>
+        
+                <main class="dashboard-grid">
+                    <div class="card card-vencimentos">
+                        <div class="card-header">
+                            <h2>Próximos Vencimentos</h2>
+                            <button class="add-btn" id="add-due-date-btn"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="card-footer">
+                            <span>Total a Vencer:</span>
+                            <span id="vencimentos-total">R$ 0,00</span>
+                        </div>
+                        <ul class="bill-list"></ul>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modais -->
+    <div class="modal-overlay hidden" id="renda-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn">×</button>
+            <h2 id="renda-modal-title"></h2>
+            <form id="renda-form">
+                <input type="hidden" name="type" id="renda-type-input">
+                <div class="form-group"><label for="renda-value-input" id="renda-modal-label"></label><input type="text" name="value" id="renda-value-input" required></div>
+                <button type="submit" class="btn-submit">Salvar Alteração</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="modal-overlay hidden" id="add-due-date-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn">×</button>
+            <h2>Novo Vencimento</h2>
+            <form id="due-date-form">
+                <div class="form-group"><label>Descrição</label><input type="text" name="description" required></div>
+                <div class="form-group"><label>Valor</label><input type="text" name="value" required></div>
+                <div class="form-group"><label>Data de Vencimento</label><input type="date" name="dueDate" required></div>
+                <button type="submit" class="btn-submit">Salvar Vencimento</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="modal-overlay hidden" id="edit-due-date-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn">×</button>
+            <h2>Editar Vencimento</h2>
+            <form id="edit-due-date-form">
+                <input type="hidden" name="id" id="edit-due-date-id">
+                <div class="form-group"><label>Descrição</label><input type="text" name="description" required></div>
+                <div class="form-group"><label>Valor</label><input type="text" name="value" required></div>
+                <div class="form-group"><label>Data de Vencimento</label><input type="date" name="dueDate" required></div>
+                <div class="form-actions"><button type="button" id="delete-due-date-btn" class="btn-delete"><i class="fas fa-trash-alt"></i> Excluir</button><button type="submit" class="btn-submit">Salvar Alterações</button></div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="modal-overlay hidden" id="confirmation-modal">
+        <div class="modal-content confirmation-box"><h3 id="confirmation-title" class="modal-subtitle"></h3><p id="confirmation-message"></p><div class="form-actions"><button id="confirm-cancel-btn" class="btn-secondary">Cancelar</button><button id="confirm-action-btn" class="btn-confirm">Confirmar</button></div></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
