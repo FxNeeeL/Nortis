@@ -63,9 +63,7 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             errorMessage.textContent = '';
-            submitButton.disabled = true;
-            btnText.classList.add('hidden');
-            btnLoader.classList.remove('hidden');
+           submitButton.disabled = true;
 
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
@@ -87,8 +85,6 @@
                 errorMessage.textContent = error.message;
             } finally {
                 submitButton.disabled = false;
-                btnText.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
             }
         });
     </script>
