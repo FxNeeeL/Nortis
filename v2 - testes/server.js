@@ -3,22 +3,25 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Chave secreta para os tokens. Em um app real, isso viria de uma variável de ambiente.
+const JWT_SECRET = 'sua-chave-super-secreta-e-longa-que-ninguem-deve-saber';
+
 // --- Configuração de CORS ---
 const frontendURL = 'https://nortis-app-matheus.onrender.com';
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Permite a URL de produção, localhost (para testes) e requisições sem 'origin' (Postman, etc)
-    const allowedOrigins = [frontendURL, 'http://localhost:3000', 'http://127.0.0.1:5500'];
-    if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
-      callback(null, true);
-    } else {
-      callback(new Error('Não permitido pela política de CORS'));
+    origin: function (origin, callback) {
+        const allowedOrigins = [frontendURL, 'http://localhost:3000', 'http://127.0.0.1:5500'];
+        if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+            callback(null, true);
+        } else {
+            callback(new Error('Não permitido pela política de CORS'));
+        }
     }
-  }
 };
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -33,22 +36,13 @@ function loadDatabase() {
             const data = fs.readFileSync(DB_PATH, 'utf8');
             dbData = JSON.parse(data || '{}');
         } else {
-            dbData = {}; // Inicia vazio se o arquivo não existe
+            dbData = {};
         }
-        
-        // Garante que a estrutura base exista para evitar erros
         if (!dbData.users) dbData.users = [];
-        if (!dbData.financas) dbData.financas = { rendaMensal: { salario: 0, vale: 0 }, vencimentos: [] };
-        
-        console.log("Banco de dados carregado ou inicializado com sucesso.");
-
+        console.log("Banco de dados carregado.");
     } catch (error) {
         console.error("Erro CRÍTICO ao carregar o banco de dados. Criando um DB novo.", error);
-        // Em caso de falha de parse, cria uma estrutura segura
-        dbData = {
-            users: [],
-            financas: { rendaMensal: { salario: 0, vale: 0 }, vencimentos: [] }
-        };
+        dbData = { users: [] };
         saveDatabase();
     }
 }
@@ -61,7 +55,7 @@ function saveDatabase() {
     }
 }
 
-// --- Funções Auxiliares (sem alterações) ---
+// --- Funções Auxiliares ---
 function getIconForDescription(description) {
     if (!description) return 'fa-file-invoice-dollar';
     const desc = description.toLowerCase();
@@ -78,7 +72,7 @@ function getIconForDescription(description) {
     return 'fa-file-invoice-dollar';
 }
 function parseCurrency(value) {
-    if(typeof value !== 'string' || value === '') return 0;
+    if (typeof value !== 'string' || value === '') return 0;
     return parseFloat(value.replace("R$", "").replace(/\./g, '').replace(',', '.')) || 0;
 }
 function calculateDiffDays(dueDate) {
@@ -89,29 +83,41 @@ function calculateDiffDays(dueDate) {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
-// --- ROTAS DE AUTENTICAÇÃO ---
+// --- Middleware de Autenticação ---
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) return res.sendStatus(401);
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
 
+// --- ROTAS DE AUTENTICAÇÃO ---
 app.post('/api/register', async (req, res) => {
     try {
-        const { email, password } = req.body;
-
-        if (!email || !password || password.length < 6) {
-            return res.status(400).json({ message: "E-mail e senha (mínimo 6 caracteres) são obrigatórios." });
+        const { name, email, password } = req.body;
+        if (!name || !email || !password || password.length < 6) {
+            return res.status(400).json({ message: "Nome, e-mail e senha (mínimo 6 caracteres) são obrigatórios." });
         }
-
-        const existingUser = dbData.users.find(user => user.email.toLowerCase() === email.toLowerCase());
+        const existingUser = dbData.users.find(u => u.email.toLowerCase() === email.toLowerCase());
         if (existingUser) {
             return res.status(409).json({ message: "Este e-mail já está em uso." });
         }
-
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = { id: Date.now(), email: email, password: hashedPassword };
+        const newUser = {
+            id: Date.now(),
+            name,
+            email,
+            password: hashedPassword,
+            financas: { rendaMensal: { salario: 0, vale: 0 }, vencimentos: [] }
+        };
         dbData.users.push(newUser);
         saveDatabase();
-
-        res.status(201).json({ message: "Usuário registrado com sucesso!", user: { id: newUser.id, email: newUser.email } });
-    } catch(error) {
+        res.status(201).json({ message: "Usuário registrado com sucesso!" });
+    } catch (error) {
         console.error("Erro no registro:", error);
         res.status(500).json({ message: "Ocorreu um erro interno no servidor." });
     }
@@ -120,126 +126,89 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-
         if (!email || !password) {
             return res.status(400).json({ message: "E-mail e senha são obrigatórios." });
         }
-
         const user = dbData.users.find(u => u.email.toLowerCase() === email.toLowerCase());
         if (!user) {
             return res.status(401).json({ message: "E-mail ou senha inválidos." });
         }
-
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) {
             return res.status(401).json({ message: "E-mail ou senha inválidos." });
         }
-
-        res.status(200).json({ message: "Login bem-sucedido!", user: { email: user.email } });
-    } catch(error) {
+        const accessToken = jwt.sign({ id: user.id, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
+        res.json({ accessToken, userName: user.name });
+    } catch (error) {
         console.error("Erro no login:", error);
         res.status(500).json({ message: "Ocorreu um erro interno no servidor." });
     }
 });
 
-
-// --- ROTAS DE FINANÇAS ---
+// --- ROTAS DE FINANÇAS (PROTEGIDAS) ---
 app.get('/healthz', (req, res) => { res.status(200).send('OK'); });
 
-app.get('/api/financas', (req, res) => {
-    const hoje = new Date();
-    const anoAtual = hoje.getFullYear();
-    const mesAtual = (hoje.getMonth() + 1).toString().padStart(2, '0');
-    const periodoAtual = `${anoAtual}-${mesAtual}`;
+app.get('/api/financas', authenticateToken, (req, res) => {
+    const user = dbData.users.find(u => u.id === req.user.id);
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
 
-    const vencimentosDoMes = dbData.financas.vencimentos.filter(v => 
-        v.dataOriginal && v.dataOriginal.startsWith(periodoAtual)
-    );
+    const hoje = new Date();
+    const periodoAtual = `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
+    const vencimentosDoMes = user.financas.vencimentos.filter(v => v.dataOriginal && v.dataOriginal.startsWith(periodoAtual));
+    
     const financasDoMes = {
-        rendaMensal: dbData.financas.rendaMensal,
+        rendaMensal: user.financas.rendaMensal,
         vencimentos: vencimentosDoMes
     };
-    if (financasDoMes.vencimentos) {
-        financasDoMes.vencimentos.forEach(vencimento => {
-            vencimento.diasRestantes = calculateDiffDays(vencimento.dataOriginal);
-            vencimento.icone = getIconForDescription(vencimento.nome);
-        });
-    }
+    financasDoMes.vencimentos.forEach(v => {
+        v.diasRestantes = calculateDiffDays(v.dataOriginal);
+        v.icone = getIconForDescription(v.nome);
+    });
     res.json(financasDoMes);
 });
 
-app.get('/api/financas/historico', (req, res) => {
-    const { period } = req.query; 
-
+app.get('/api/financas/historico', authenticateToken, (req, res) => {
+    const user = dbData.users.find(u => u.id === req.user.id);
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
+    
+    const { period } = req.query;
     if (!period || !/^\d{4}-\d{2}$/.test(period)) {
-        return res.status(400).json({ message: "Formato de período inválido. Use AAAA-MM." });
+        return res.status(400).json({ message: "Formato de período inválido." });
     }
     
-    const filteredVencimentos = dbData.financas.vencimentos.filter(v => 
-        v.dataOriginal && v.dataOriginal.startsWith(period)
-    );
-
-    const vencimentosComIcone = filteredVencimentos.map(v => ({
-        ...v,
-        icone: getIconForDescription(v.nome) 
-    }));
-    
+    const filteredVencimentos = user.financas.vencimentos.filter(v => v.dataOriginal && v.dataOriginal.startsWith(period));
     const reportData = {
-        rendaMensal: dbData.financas.rendaMensal,
-        vencimentos: vencimentosComIcone
+        rendaMensal: user.financas.rendaMensal,
+        vencimentos: filteredVencimentos.map(v => ({...v, icone: getIconForDescription(v.nome)}))
     };
-    
     res.status(200).json(reportData);
 });
 
-app.put('/api/renda', (req, res) => {
+app.put('/api/renda', authenticateToken, (req, res) => {
+    const user = dbData.users.find(u => u.id === req.user.id);
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
     const { salario, vale } = req.body;
-    dbData.financas.rendaMensal.salario = parseCurrency(salario);
-    dbData.financas.rendaMensal.vale = parseCurrency(vale);
+    user.financas.rendaMensal.salario = parseCurrency(salario);
+    user.financas.rendaMensal.vale = parseCurrency(vale);
     saveDatabase();
-    res.status(200).json(dbData.financas.rendaMensal);
+    res.status(200).json(user.financas.rendaMensal);
 });
 
-app.post('/api/vencimentos', (req, res) => {
+app.post('/api/vencimentos', authenticateToken, (req, res) => {
+    const user = dbData.users.find(u => u.id === req.user.id);
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
     const { description, dueDate, value } = req.body;
-    const novoVencimento = { 
-        id: Date.now(), 
-        nome: description,
-        valor: parseCurrency(value), 
-        dataOriginal: dueDate, 
-        pago: false 
-    };
-    dbData.financas.vencimentos.push(novoVencimento);
+    const novoVencimento = { id: Date.now(), nome: description, valor: parseCurrency(value), dataOriginal: dueDate, pago: false };
+    user.financas.vencimentos.push(novoVencimento);
     saveDatabase();
     res.status(201).json(novoVencimento);
 });
 
-app.put('/api/vencimentos/:id/pagar', (req, res) => {
+app.put('/api/vencimentos/:id', authenticateToken, (req, res) => {
+    const user = dbData.users.find(u => u.id === req.user.id);
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
     const id = parseInt(req.params.id);
-    const vencimento = dbData.financas.vencimentos.find(v => v.id === id);
-    if (vencimento) {
-        vencimento.pago = true;
-        vencimento.dataPagamento = new Date().toLocaleDateString('pt-BR');
-        saveDatabase();
-        return res.status(200).json(vencimento);
-    }
-    return res.status(404).json({ message: "Vencimento não encontrado." });
-});
-
-app.delete('/api/vencimentos/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const index = dbData.financas.vencimentos.findIndex(v => v.id === id);
-    if (index !== -1) {
-        dbData.financas.vencimentos.splice(index, 1);
-        saveDatabase();
-        return res.status(200).json({ message: "Vencimento removido permanentemente" });
-    }
-    return res.status(404).json({ message: "Vencimento não encontrado." });
-});
-
-app.put('/api/vencimentos/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const vencimento = dbData.financas.vencimentos.find(v => v.id === id);
+    const vencimento = user.financas.vencimentos.find(v => v.id === id);
     if (vencimento) {
         vencimento.nome = req.body.description;
         vencimento.valor = parseCurrency(req.body.value);
@@ -250,6 +219,32 @@ app.put('/api/vencimentos/:id', (req, res) => {
     return res.status(404).json({ message: "Vencimento não encontrado." });
 });
 
+app.put('/api/vencimentos/:id/pagar', authenticateToken, (req, res) => {
+    const user = dbData.users.find(u => u.id === req.user.id);
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
+    const id = parseInt(req.params.id);
+    const vencimento = user.financas.vencimentos.find(v => v.id === id);
+    if (vencimento) {
+        vencimento.pago = true;
+        vencimento.dataPagamento = new Date().toLocaleDateString('pt-BR');
+        saveDatabase();
+        return res.status(200).json(vencimento);
+    }
+    return res.status(404).json({ message: "Vencimento não encontrado." });
+});
+
+app.delete('/api/vencimentos/:id', authenticateToken, (req, res) => {
+    const user = dbData.users.find(u => u.id === req.user.id);
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
+    const id = parseInt(req.params.id);
+    const index = user.financas.vencimentos.findIndex(v => v.id === id);
+    if (index !== -1) {
+        user.financas.vencimentos.splice(index, 1);
+        saveDatabase();
+        return res.status(200).json({ message: "Vencimento removido permanentemente" });
+    }
+    return res.status(404).json({ message: "Vencimento não encontrado." });
+});
 
 // --- INICIALIZAÇÃO DO SERVIDOR ---
 loadDatabase(); 

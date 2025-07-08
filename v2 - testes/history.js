@@ -1,5 +1,7 @@
-const userName = localStorage.getItem('nortis_username');
-if (!userName) {
+const token = localStorage.getItem('nortis_token');
+const userName = localStorage.getItem('nortis_user_name');
+
+if (!token || !userName) {
     window.location.href = 'login.html';
 }
 
@@ -12,23 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const themeToggleBtn = document.getElementById('theme-toggle-btn');
         if (!themeToggleBtn) return;
         const themeIcon = themeToggleBtn.querySelector('i');
-
         const applyTheme = (theme) => {
-            if (theme === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeIcon.className = 'fas fa-sun';
-            } else {
-                document.body.classList.remove('dark-mode');
-                themeIcon.className = 'fas fa-moon';
-            }
+            document.body.classList.toggle('dark-mode', theme === 'dark');
+            themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         };
-
         const currentTheme = localStorage.getItem('nortis_theme');
         applyTheme(currentTheme);
-
         themeToggleBtn.addEventListener('click', () => {
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            const newTheme = isDarkMode ? 'light' : 'dark';
+            const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
             localStorage.setItem('nortis_theme', newTheme);
             applyTheme(newTheme);
         });
@@ -37,14 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderReport = (data, period) => {
         const outputDiv = document.getElementById('report-output');
         const { rendaMensal, vencimentos } = data;
-
         const rendaTotal = (rendaMensal?.salario || 0) + (rendaMensal?.vale || 0);
         const totalGasto = vencimentos.filter(v => v.pago).reduce((acc, v) => acc + v.valor, 0);
         const saldo = rendaTotal - totalGasto;
-
         const date = new Date(`${period}-02`);
         const periodFormatted = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-
         let billsHTML = '';
         if (vencimentos.length === 0) {
             billsHTML = '<p class="empty-state">Nenhum vencimento registrado para este mês.</p>';
@@ -61,32 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 </li>
             `).join('');
         }
-
         const reportHTML = `
             <div class="card report-card">
                 <h2>Relatório de ${periodFormatted}</h2>
                 <div class="report-summary">
-                    <div class="summary-item positive">
-                        <span><i class="fas fa-arrow-up"></i> Renda Total</span>
-                        <p>${formatarMoeda(rendaTotal)}</p>
-                    </div>
-                    <div class="summary-item negative">
-                        <span><i class="fas fa-arrow-down"></i> Total Gasto</span>
-                        <p>${formatarMoeda(totalGasto)}</p>
-                    </div>
-                    <div class="summary-item balance ${saldo >= 0 ? 'positive' : 'negative'}">
-                        <span><i class="fas fa-balance-scale"></i> Saldo do Mês</span>
-                        <p>${formatarMoeda(saldo)}</p>
-                    </div>
+                    <div class="summary-item positive"><span><i class="fas fa-arrow-up"></i> Renda Total</span><p>${formatarMoeda(rendaTotal)}</p></div>
+                    <div class="summary-item negative"><span><i class="fas fa-arrow-down"></i> Total Gasto</span><p>${formatarMoeda(totalGasto)}</p></div>
+                    <div class="summary-item balance ${saldo >= 0 ? 'positive' : 'negative'}"><span><i class="fas fa-balance-scale"></i> Saldo do Mês</span><p>${formatarMoeda(saldo)}</p></div>
                 </div>
                 <h3 class="report-subtitle">Detalhes dos Vencimentos</h3>
                 <ul class="bill-list report-mode">${billsHTML}</ul>
             </div>
         `;
-
         outputDiv.innerHTML = reportHTML;
     };
-
 
     const handleGenerateReport = async (e) => {
         e.preventDefault();
@@ -94,36 +72,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = form.querySelector('button[type="submit"]');
         const period = form.elements.month.value;
         if (!period) return;
-        
         const outputDiv = document.getElementById('report-output');
-        
         button.disabled = true;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
-        
         try {
-            const response = await fetch(`${API_URL}/financas/historico?period=${period}`);
-            
-            // MUDANÇA: A resposta da API agora tem uma estrutura diferente
-            const responseData = await response.json();
-            
-            // Exibe os logs do servidor no console do navegador para referência
-            if (responseData.debugLog) {
-                console.log("--- DEBUG LOG DO SERVIDOR ---");
-                console.log(responseData.debugLog.join('\n'));
-                console.log("----------------------------");
+            const response = await fetch(`${API_URL}/financas/historico?period=${period}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('nortis_token');
+                localStorage.removeItem('nortis_user_name');
+                window.location.href = 'login.html';
+                return;
             }
-            
-            // Pega os dados do relatório de dentro do objeto 'reportData'
-            let reportData = responseData.reportData;
-
-            if (response.ok) {
-                // Não precisamos mais checar por 404 aqui, pois o servidor já faz isso.
-                // Apenas passamos os dados para a função de renderização.
-                renderReport(reportData, period);
-            } else {
-                throw new Error(`Ocorreu um erro ao buscar os dados (${response.status})`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: `Erro na API (${response.status})` }));
+                throw new Error(errorData.message);
             }
-            
+            const data = await response.json();
+            renderReport(data, period);
         } catch (error) {
             console.error("Erro ao gerar relatório:", error);
             outputDiv.innerHTML = `<div class="empty-state error"><i class="fas fa-exclamation-triangle fa-3x"></i><p>${error.message}</p></div>`;
@@ -136,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const init = () => {
         setupTheme();
         document.getElementById('report-form').addEventListener('submit', handleGenerateReport);
-
         const today = new Date();
         today.setMonth(today.getMonth() - 1);
         const year = today.getFullYear();

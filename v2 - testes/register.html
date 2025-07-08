@@ -16,6 +16,10 @@
         <p>Comece a organizar suas finanças.</p>
         <form id="register-form">
             <div class="form-group">
+                <label for="name">Como podemos te chamar?</label>
+                <input type="text" id="name" name="name" required autocomplete="name">
+            </div>
+            <div class="form-group">
                 <label for="email">E-mail</label>
                 <input type="email" id="email" name="email" required autocomplete="email">
             </div>
@@ -45,7 +49,6 @@
             const data = Object.fromEntries(formData.entries());
 
             try {
-                // Substitua pela sua URL de produção real
                 const API_URL = 'https://nortis-api-matheus.onrender.com/api';
 
                 const response = await fetch(`${API_URL}/register`, {

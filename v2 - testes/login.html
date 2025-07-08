@@ -31,8 +31,7 @@
         </div>
     </div>
     <script>
-        // Redireciona se o usuário já estiver logado
-        if (localStorage.getItem('nortis_user_email')) {
+        if (localStorage.getItem('nortis_token')) {
             window.location.href = 'index.html';
         }
 
@@ -49,7 +48,6 @@
             const data = Object.fromEntries(formData.entries());
             
             try {
-                // Substitua pela sua URL de produção real
                 const API_URL = 'https://nortis-api-matheus.onrender.com/api'; 
                 
                 const response = await fetch(`${API_URL}/login`, {
@@ -62,7 +60,8 @@
                     throw new Error(result.message || 'Erro ao fazer login.');
                 }
                 
-                localStorage.setItem('nortis_user_email', result.user.email);
+                localStorage.setItem('nortis_token', result.accessToken);
+                localStorage.setItem('nortis_user_name', result.userName);
                 window.location.href = 'index.html';
             } catch (error) {
                 errorMessage.textContent = error.message;
