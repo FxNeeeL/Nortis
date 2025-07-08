@@ -8,25 +8,11 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Chave secreta para os tokens. Em um app real, isso viria de uma variável de ambiente.
 const JWT_SECRET = 'sua-chave-super-secreta-e-longa-que-ninguem-deve-saber';
 
-// --- Configuração de CORS ---
-const frontendURL = 'https://nortis-app-matheus.onrender.com';
-const corsOptions = {
-    origin: function (origin, callback) {
-        const allowedOrigins = [frontendURL, 'http://localhost:3000', 'http://127.0.0.1:5500'];
-        if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
-            callback(null, true);
-        } else {
-            callback(new Error('Não permitido pela política de CORS'));
-        }
-    }
-};
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
-// --- Configuração da Persistência ---
 const DB_PATH = path.join(__dirname, 'database.json');
 let dbData;
 
@@ -55,7 +41,6 @@ function saveDatabase() {
     }
 }
 
-// --- Funções Auxiliares ---
 function getIconForDescription(description) {
     if (!description) return 'fa-file-invoice-dollar';
     const desc = description.toLowerCase();
@@ -71,19 +56,26 @@ function getIconForDescription(description) {
     if (desc.includes('nortis') || desc.includes('assinatura')) return 'fa-star';
     return 'fa-file-invoice-dollar';
 }
+
 function parseCurrency(value) {
     if (typeof value !== 'string' || value === '') return 0;
     return parseFloat(value.replace("R$", "").replace(/\./g, '').replace(',', '.')) || 0;
 }
+
+// MUDANÇA: Lógica da função corrigida
 function calculateDiffDays(dueDate) {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
-    const dataVencimento = new Date(dueDate + 'T03:00:00Z');
+
+    const [ano, mes, dia] = dueDate.split('-').map(Number);
+    const dataVencimento = new Date(ano, mes - 1, dia);
+    dataVencimento.setHours(0, 0, 0, 0);
+
     const diffTime = dataVencimento - hoje;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return Math.round(diffTime / (1000 * 60 * 60 * 24));
 }
 
-// --- Middleware de Autenticação ---
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -95,7 +87,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// --- ROTAS DE AUTENTICAÇÃO ---
 app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -145,7 +136,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// --- ROTAS DE FINANÇAS (PROTEGIDAS) ---
 app.get('/healthz', (req, res) => { res.status(200).send('OK'); });
 
 app.get('/api/financas', authenticateToken, (req, res) => {
@@ -246,7 +236,6 @@ app.delete('/api/vencimentos/:id', authenticateToken, (req, res) => {
     return res.status(404).json({ message: "Vencimento não encontrado." });
 });
 
-// --- INICIALIZAÇÃO DO SERVIDOR ---
 loadDatabase(); 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor do Nortis rodando na porta ${PORT}`);

@@ -67,23 +67,28 @@ document.addEventListener('DOMContentLoaded', () => {
             let itemClass = isPaid ? 'list-item--paid' : '';
             if (isOverdue) itemClass += ' list-item--overdue';
             const iconClass = isPaid ? 'fa-check' : v.icone;
+            
             let dateText;
+            let dateClass = '';
+            
             if (isPaid) {
                 dateText = `Pago em ${v.dataPagamento}`;
             } else if (isOverdue) {
                 dateText = `Vencido há ${Math.abs(v.diasRestantes)} dia(s)`;
             } else if (v.diasRestantes === 0) {
                 dateText = "Vence hoje";
+                dateClass = 'bill-date--today';
             } else {
                 dateText = `Vence em ${v.diasRestantes} dia(s)`;
             }
+
             if (!isPaid) {
                 totalAVencer += v.valor;
             }
             const actionsHTML = isPaid 
                 ? `<div class="list-item-actions"><button class="action-btn trash" title="Excluir"><i class="fas fa-trash-alt"></i></button></div>`
                 : `<div class="list-item-actions"><button class="action-btn edit" title="Editar"><i class="fas fa-pencil-alt"></i></button><button class="action-btn pay" title="Pagar"><i class="fas fa-check-circle"></i></button></div>`;
-            const liHTML = `<li class="list-item ${itemClass}" data-id="${v.id}"><div class="bill-icon"><i class="fa-solid ${iconClass}"></i></div><div class="bill-details"><span class="bill-name">${v.nome}</span><span class="bill-date">${dateText}</span></div>${actionsHTML}<span class="bill-amount">${formatarMoeda(v.valor)}</span></li>`;
+            const liHTML = `<li class="list-item ${itemClass}" data-id="${v.id}"><div class="bill-icon"><i class="fa-solid ${iconClass}"></i></div><div class="bill-details"><span class="bill-name">${v.nome}</span><span class="bill-date ${dateClass}">${dateText}</span></div>${actionsHTML}<span class="bill-amount">${formatarMoeda(v.valor)}</span></li>`;
             listEl.insertAdjacentHTML('beforeend', liHTML);
         });
         document.getElementById('vencimentos-total').textContent = formatarMoeda(totalAVencer);
@@ -94,10 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
-        const config = {
-            method,
-            headers
-        };
+        const config = { method, headers };
         if (body) {
             config.body = JSON.stringify(body);
         }
@@ -112,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const errorData = await response.json().catch(() => ({ message: response.statusText }));
             throw new Error(errorData.message || 'Ocorreu um erro na requisição.');
         }
-        return response.status !== 204 ? await response.json() : null; 
+        return response.status !== 204 ? await response.json() : null;
     };
 
     const handleEditFormSubmit = async () => {
@@ -206,13 +208,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'login.html';
             });
         });
-
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             const closeBtn = overlay.querySelector('.modal-close-btn');
             if (closeBtn) closeBtn.addEventListener('click', () => overlay.classList.add('hidden'));
             overlay.addEventListener('click', e => { if(e.target === overlay) overlay.classList.add('hidden'); });
         });
-        
         document.querySelectorAll('.edit-income-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const type = e.currentTarget.dataset.type;
@@ -226,26 +226,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('renda-value-input').focus();
             });
         });
-
         document.getElementById('add-due-date-btn').addEventListener('click', () => {
             document.getElementById('due-date-form').reset();
             document.getElementById('add-due-date-modal').classList.remove('hidden');
         });
-
         document.getElementById('confirm-cancel-btn').addEventListener('click', () => document.getElementById('confirmation-modal').classList.add('hidden'));
-        
         document.getElementById('renda-form').addEventListener('submit', handleSimpleFormSubmit);
         document.getElementById('due-date-form').addEventListener('submit', handleSimpleFormSubmit);
-        
         document.getElementById('edit-due-date-form').querySelector('.btn-submit').addEventListener('click', (e) => {
             e.preventDefault(); 
             handleEditFormSubmit();
         });
-
         document.querySelectorAll('input[name="value"]').forEach(input => {
             input.addEventListener('keyup', () => formatCurrencyInput(input));
         });
-
         document.querySelector('.bill-list').addEventListener('click', e => {
             const target = e.target;
             const actionBtn = target.closest('.action-btn');
@@ -253,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const listItem = target.closest('.list-item');
             const id = listItem.dataset.id;
             const vencimento = appData.vencimentos.find(v => v.id == id);
-            
             if (actionBtn.classList.contains('edit')) {
                 const modal = document.getElementById('edit-due-date-modal');
                 modal.querySelector('[name="id"]').value = id;
@@ -267,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleDelete(id, `o vencimento "${vencimento.nome}"`);
             }
         });
-        
         document.getElementById('edit-due-date-modal').querySelector('#delete-due-date-btn').addEventListener('click', () => {
             const id = document.getElementById('edit-due-date-modal').querySelector('[name="id"]').value;
             const vencimento = appData.vencimentos.find(v => v.id == id);
@@ -281,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
             render();
         } catch (error) {
             console.error("Erro em fetchAndRender:", error);
-            // Evita apagar a tela inteira se a primeira chamada falhar
         }
     };
     
