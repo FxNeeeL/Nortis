@@ -13,9 +13,7 @@ app.use(express.json());
 // --- CONFIGURAÇÃO DA PERSISTÊNCIA (ADAPTADO PARA RENDER) ---
 // O disco persistente da Render é montado em /var/data
 // Verificamos se estamos no ambiente Render pela variável de ambiente RENDER
-const IS_RENDER = process.env.RENDER === 'true';
-const DB_DIR = IS_RENDER ? '/var/data' : __dirname;
-const DB_PATH = path.join(DB_DIR, 'database.json');
+const DB_PATH = path.join(__dirname, 'database.json');
 
 let financas;
 
@@ -75,6 +73,12 @@ function calculateDiffDays(dueDate) {
 }
 
 // --- ROTAS DA API ---
+
+
+app.get('/healthz', (req, res) => {
+    // Retorna uma resposta simples de sucesso
+    res.status(200).send('OK');
+});
 
 app.get('/api/financas', (req, res) => {
     const hoje = new Date();
