@@ -48,49 +48,48 @@
         </div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.documentElement.classList.remove('dark-mode-preload');
-            if (localStorage.getItem('nortis_theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
+        // MUDANÇA: Lógica do script simplificada e movida para fora do DOMContentLoaded
+        document.documentElement.classList.remove('dark-mode-preload');
+        if (localStorage.getItem('nortis_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
 
-            const form = document.getElementById('register-form');
-            const errorMessage = document.getElementById('error-message');
-            const submitButton = form.querySelector('.btn-submit');
-            const btnText = submitButton.querySelector('.btn-text');
-            const btnLoader = submitButton.querySelector('.btn-loader');
-            
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                errorMessage.textContent = '';
-                submitButton.disabled = true;
-                btnText.classList.add('hidden');
-                btnLoader.classList.remove('hidden');
+        const form = document.getElementById('register-form');
+        const errorMessage = document.getElementById('error-message');
+        const submitButton = form.querySelector('.btn-submit');
+        const btnText = submitButton.querySelector('.btn-text');
+        const btnLoader = submitButton.querySelector('.btn-loader');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMessage.textContent = '';
+            submitButton.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
 
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
 
-                try {
-                    const API_URL = 'https://nortis-api-matheus.onrender.com/api';
-                    const response = await fetch(`${API_URL}/register`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.message || 'Erro ao registrar.');
-                    }
-                    alert('Registro bem-sucedido! Você será redirecionado para a tela de login.');
-                    window.location.href = 'login.html';
-                } catch (error) {
-                    errorMessage.textContent = error.message;
-                } finally {
-                    submitButton.disabled = false;
-                    btnText.classList.remove('hidden');
-                    btnLoader.classList.add('hidden');
+            try {
+                const API_URL = 'https://nortis-api-matheus.onrender.com/api';
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || 'Erro ao registrar.');
                 }
-            });
+                alert('Registro bem-sucedido! Você será redirecionado para a tela de login.');
+                window.location.href = 'login.html';
+            } catch (error) {
+                errorMessage.textContent = error.message;
+            } finally {
+                submitButton.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+            }
         });
     </script>
 </body>

@@ -44,57 +44,58 @@
         </div>
     </div>
     <script>
+        // MUDANÇA: Lógica do script simplificada e movida para fora do DOMContentLoaded
+        
+        // Aplica o tema final assim que o body estiver disponível
+        document.documentElement.classList.remove('dark-mode-preload');
+        if (localStorage.getItem('nortis_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Redireciona se o usuário já estiver logado
         if (localStorage.getItem('nortis_token')) {
             window.location.href = 'index.html';
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Remove a classe de pré-carregamento e aplica a final
-            document.documentElement.classList.remove('dark-mode-preload');
-            if (localStorage.getItem('nortis_theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
+        const form = document.getElementById('login-form');
+        const submitButton = form.querySelector('.btn-submit');
+        const btnText = submitButton.querySelector('.btn-text');
+        const btnLoader = submitButton.querySelector('.btn-loader');
+        const errorMessage = document.getElementById('error-message');
 
-            const form = document.getElementById('login-form');
-            const submitButton = form.querySelector('.btn-submit');
-            const btnText = submitButton.querySelector('.btn-text');
-            const btnLoader = submitButton.querySelector('.btn-loader');
-            const errorMessage = document.getElementById('error-message');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMessage.textContent = '';
+            submitButton.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
 
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                errorMessage.textContent = '';
-                submitButton.disabled = true;
-                btnText.classList.add('hidden');
-                btnLoader.classList.remove('hidden');
-
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const API_URL = 'https://nortis-api-matheus.onrender.com/api'; 
                 
-                try {
-                    const API_URL = 'https://nortis-api-matheus.onrender.com/api'; 
-                    
-                    const response = await fetch(`${API_URL}/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.message || 'Erro ao fazer login.');
-                    }
-                    
-                    localStorage.setItem('nortis_token', result.accessToken);
-                    localStorage.setItem('nortis_user_name', result.userName);
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    errorMessage.textContent = error.message;
-                } finally {
-                    submitButton.disabled = false;
-                    btnText.classList.remove('hidden');
-                    btnLoader.classList.add('hidden');
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || 'Erro ao fazer login.');
                 }
-            });
+                
+                localStorage.setItem('nortis_token', result.accessToken);
+                localStorage.setItem('nortis_user_name', result.userName);
+                window.location.href = 'index.html';
+            } catch (error) {
+                errorMessage.textContent = error.message;
+            } finally {
+                submitButton.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+            }
         });
     </script>
 </body>
