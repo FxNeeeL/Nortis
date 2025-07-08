@@ -4,13 +4,19 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+// MUDANÇA: Usa a porta do ambiente de produção ou 3000 localmente
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// --- CONFIGURAÇÃO DA PERSISTÊNCIA ---
-const DB_PATH = path.join(__dirname, 'database.json');
+// --- CONFIGURAÇÃO DA PERSISTÊNCIA (ADAPTADO PARA RENDER) ---
+// O disco persistente da Render é montado em /var/data
+// Verificamos se estamos no ambiente Render pela variável de ambiente RENDER
+const IS_RENDER = process.env.RENDER === 'true';
+const DB_DIR = IS_RENDER ? '/var/data' : __dirname;
+const DB_PATH = path.join(DB_DIR, 'database.json');
+
 let financas;
 
 function loadDatabase() {
