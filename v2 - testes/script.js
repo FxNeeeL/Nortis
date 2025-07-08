@@ -1,5 +1,5 @@
-const userName = localStorage.getItem('nortis_username');
-if (!userName) {
+const userEmail = localStorage.getItem('nortis_user_email');
+if (!userEmail) {
     window.location.href = 'login.html';
 }
 
@@ -37,7 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const render = () => {
         const hora = new Date().getHours();
         const saudacao = (hora >= 5 && hora < 12) ? "Bom dia" : (hora >= 12 && hora < 18) ? "Boa tarde" : "Boa noite";
-        document.querySelector('.header-title').textContent = `${saudacao}, ${userName}.`;
+        
+        // Exibe o email do usuário
+        const userDisplay = userEmail.split('@')[0]; // Pega a parte antes do @
+        document.querySelector('.header-title').textContent = `${saudacao}, ${userDisplay}.`;
         
         document.querySelector('.current-month-indicator').textContent = `Análise de ${new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`;
         renderRenda(appData.rendaMensal);
@@ -195,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const setupEventListeners = () => {
         document.getElementById('logout-btn').addEventListener('click', () => {
             showConfirmation('Sair da Conta', 'Tem certeza que deseja sair?', () => {
-                localStorage.removeItem('nortis_username');
+                localStorage.removeItem('nortis_user_email'); // Remove a chave do email
                 window.location.href = 'login.html';
             });
         });
