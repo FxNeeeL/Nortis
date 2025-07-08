@@ -1,0 +1,8 @@
+# Ignorar a pasta de dependências do Node.js
+node_modules
+
+# Ignorar arquivos de ambiente (onde chaves secretas poderiam estar)
+.env
+
+# Ignorar arquivos de log de depuração
+debug.log
