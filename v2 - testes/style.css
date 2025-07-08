@@ -16,6 +16,10 @@
     --font-sans: 'Poppins', sans-serif;
 }
 
+html.dark-mode-preload {
+    background-color: #22272B;
+}
+
 body.dark-mode {
     --color-background: #22272B;
     --color-background-hover: #333a40;
@@ -63,10 +67,8 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
 
 header { flex-shrink: 0; }
 .header-main { display: flex; justify-content: space-between; align-items: flex-start; }
-
-/* MUDANÇA: Tamanho da fonte da saudação reduzido */
 .header-title { 
-    font-size: 2.2rem; /* Era 2.5rem */
+    font-size: 2.2rem;
     margin: 0; 
 }
 .current-month-indicator { font-family: var(--font-serif); font-size: 1.1rem; color: var(--color-secondary-text); margin-top: -8px; }
@@ -105,7 +107,6 @@ header { flex-shrink: 0; }
     text-align: center;
     color: var(--color-secondary-text);
 }
-
 
 .highlight-cards { display: flex; gap: 24px; flex-wrap: wrap; }
 .highlight-card { 
@@ -176,7 +177,6 @@ header { flex-shrink: 0; }
 @keyframes payment-success-dark { 0% { background-color: transparent; } 50% { background-color: #3a5c43; } 100% { background-color: transparent; } }
 .list-item--just-paid { animation: payment-success-light 1.5s ease-out; }
 body.dark-mode .list-item--just-paid { animation: payment-success-dark 1.5s ease-out; }
-
 .card-footer { border-bottom: 1px solid var(--color-border); padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; transition: border-color 0.3s ease; }
 .card-footer span:last-child { color: var(--color-action); }
 
@@ -212,15 +212,7 @@ body.dark-mode .list-item--just-paid { animation: payment-success-dark 1.5s ease
 .btn-confirm.delete { background-color: var(--color-critical); }
 .btn-confirm.delete:hover { background-color: var(--color-critical-hover); }
 
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 16px;
-    transition: border-color 0.3s ease;
-}
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; transition: border-color 0.3s ease; }
 .page-title { font-size: 2rem; margin: 0; }
 .back-btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; transition: color 0.2s ease; }
 .back-btn:hover { color: var(--color-action); }
@@ -246,87 +238,23 @@ body.dark-mode .summary-item.balance.positive p, body.dark-mode .summary-item.ba
 .header-action-btn { background: none; border: none; font-size: 1.5rem; color: var(--color-secondary-text); cursor: pointer; transition: color 0.2s ease; padding: 0; text-decoration: none; display: inline-flex; align-items: center; }
 .header-action-btn:hover { color: var(--color-action); }
 
-/* Os estilos de notificação foram REMOVIDOS daqui */
+@media (max-width: 1200px) { .main-layout-grid { grid-template-columns: 1fr; } .left-column { position: static; order: 1; } .right-column { order: 2; } }
 
-@media (max-width: 1200px) {
-    .main-layout-grid { grid-template-columns: 1fr; }
-    .left-column { position: static; order: 1; }
-    .right-column { order: 2; }
-}
-
-
-@media (max-width: 1200px) {
-    .main-layout-grid { grid-template-columns: 1fr; }
-    .left-column { position: static; order: 1; }
-    .right-column { order: 2; }
-}
-
-/* === NOVOS ESTILOS PARA AS PÁGINAS DE LOGIN E REGISTRO === */
-
-.login-page-body {
-    display: grid;
-    place-items: center;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.login-container {
-    width: 100%;
-    max-width: 400px;
-    padding: 40px;
-    background-color: var(--color-surface);
-    border-radius: 12px;
-    box-shadow: 0 8px 30px var(--color-shadow);
-    text-align: center;
-}
-
-.login-container h1 {
-    font-size: 2rem;
-    margin-bottom: 8px;
-}
-
-.login-container p {
-    color: var(--color-secondary-text);
-    margin-bottom: 30px;
-}
-
-.login-container .form-group {
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.login-container .form-group label {
-    font-weight: 500;
-}
-
-.login-container .btn-submit {
-    width: 100%;
-    margin-top: 10px;
-}
-
-.login-container .btn-submit:disabled {
-    background-color: var(--color-action-hover);
-    cursor: not-allowed;
-}
-
-.error-message {
-    color: var(--color-critical);
-    font-weight: 500;
-    margin-top: 15px;
-    min-height: 1.2em; /* Garante espaço mesmo quando vazio */
-}
-
-.login-link {
-    margin-top: 25px;
-    color: var(--color-secondary-text);
-}
-
-.login-link a {
-    color: var(--color-action);
-    font-weight: 500;
-    text-decoration: none;
-}
-
-.login-link a:hover {
-    text-decoration: underline;
-}
+/* === ESTILOS PARA PÁGINAS DE LOGIN E REGISTRO === */
+.login-page-body { display: grid; place-items: center; min-height: 100vh; padding: 20px; }
+.login-container { width: 100%; max-width: 400px; padding: 40px; background-color: var(--color-surface); border-radius: 12px; box-shadow: 0 8px 30px var(--color-shadow); text-align: center; }
+.login-icon { font-size: 3rem; margin-bottom: 16px; line-height: 1; }
+.login-container h1 { font-size: 2rem; margin-bottom: 8px; }
+.login-container p { color: var(--color-secondary-text); margin-bottom: 30px; }
+.login-container .form-group { text-align: left; margin-bottom: 20px; }
+.login-container .form-group label { font-weight: 500; }
+.login-container .btn-submit { width: 100%; margin-top: 10px; position: relative; min-height: 50px; }
+.login-container .btn-submit:disabled { background-color: var(--color-action-hover); cursor: not-allowed; }
+.btn-text.hidden { visibility: hidden; }
+.btn-loader { border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 3px solid #fff; width: 24px; height: 24px; animation: spin 1s linear infinite; position: absolute; top: 50%; left: 50%; margin-top: -12px; margin-left: -12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-loader.hidden { display: none; }
+.error-message { color: var(--color-critical); font-weight: 500; margin-top: 15px; min-height: 1.2em; }
+.login-link { margin-top: 25px; color: var(--color-secondary-text); }
+.login-link a { color: var(--color-action); font-weight: 500; text-decoration: none; }
+.login-link a:hover { text-decoration: underline; }

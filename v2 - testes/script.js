@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const errorData = await response.json().catch(() => ({ message: response.statusText }));
             throw new Error(errorData.message || 'Ocorreu um erro na requisição.');
         }
-        return response.status !== 204 ? await response.json() : null; // Handle 204 No Content
+        return response.status !== 204 ? await response.json() : null; 
     };
 
     const handleEditFormSubmit = async () => {
@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const themeIcon = themeToggleBtn.querySelector('i');
         const applyTheme = (theme) => {
             document.body.classList.toggle('dark-mode', theme === 'dark');
+            document.documentElement.classList.remove('dark-mode-preload');
             themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         };
         const currentTheme = localStorage.getItem('nortis_theme');
@@ -280,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
             render();
         } catch (error) {
             console.error("Erro em fetchAndRender:", error);
+            // Evita apagar a tela inteira se a primeira chamada falhar
         }
     };
     
