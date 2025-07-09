@@ -51,10 +51,55 @@ header { flex-shrink: 0; }
 .vertical-menu a:hover, .vertical-menu button:hover { background-color: var(--color-background-hover); }
 .vertical-menu i { font-size: 1.2rem; width: 20px; text-align: center; color: var(--color-secondary-text); }
 .highlight-cards { display: flex; gap: 24px; flex-wrap: wrap; }
-.highlight-card { background-color: var(--color-surface); border-radius: 12px; padding: 16px 24px; box-shadow: 0 4px 20px var(--color-shadow); flex: 1; position: relative; transition: background-color 0.3s ease, box-shadow 0.3s ease; text-align: left; }
-.highlight-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; width: 100%; }
-.highlight-card h3 { display: flex; align-items: center; gap: 8px; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; margin: 0; }
-.highlight-amount { font-size: 2rem; font-weight: 700; color: var(--color-primary-text); margin: 0; text-align: left; }
+.highlight-card {
+    background-color: var(--color-surface); 
+    border-radius: 12px; 
+    padding: 16px 24px; 
+    box-shadow: 0 4px 20px var(--color-shadow); 
+    flex: 1; 
+    position: relative; 
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; 
+    /* MUDANÇA: Alinhamento geral do card para o centro */
+    text-align: center; 
+}
+.highlight-header {
+    /* MUDANÇA: Centraliza o h3, mas mantém o botão de editar no canto */
+    justify-content: center;
+    align-items: center; 
+    margin-bottom: 8px; 
+    width: 100%;
+    position: relative; /* Necessário para o posicionamento absoluto do botão de editar */
+}
+.highlight-card h3 { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    color: var(--color-secondary-text); 
+    font-size: 1.1rem; 
+    font-weight: 500; 
+    margin: 0; 
+}
+.highlight-amount { 
+    font-size: 2rem; 
+    font-weight: 700; 
+    color: var(--color-primary-text); 
+    margin: 0; 
+    /* MUDANÇA: Alinhamento do valor para o centro */
+    text-align: center; 
+}
+
+/* O edit-income-btn já está com position: absolute, o que é perfeito para este layout. */
+.edit-income-btn {
+    position: absolute;
+    top: -5px; /* Ajuste fino da posição vertical */
+    right: 0;
+    /* ... o resto das regras do botão continuam iguais */
+}
+
+/* Garante que o H3 do card de Saldo (que não tem botão) fique perfeitamente centralizado */
+.highlight-card.balance .highlight-header {
+    justify-content: center;
+}
 .highlight-amount.positive, .highlight-header .positive { color: var(--color-positive); }
 .highlight-amount.negative { color: var(--color-critical); }
 .highlight-card.balance .highlight-header i { color: var(--color-positive); }
