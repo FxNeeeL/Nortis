@@ -41,15 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const saudacao = (hora >= 5 && hora < 12) ? "Bom dia" : (hora >= 12 && hora < 18) ? "Boa tarde" : "Boa noite";
         document.querySelector('.header-title').textContent = `${saudacao}, ${userName}.`;
         document.querySelector('.current-month-indicator').textContent = `Análise de ${new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`;
-        
-        // MUDANÇA: Passa o saldo para a função renderRenda
-        renderRenda(appData.rendaMensal, appData.saldoAtual); 
-        
+        renderRendaESaldo(appData.rendaMensal, appData.saldoAtual); 
         renderVencimentos(appData.vencimentos);
     };
     
-    // MUDANÇA: Função agora recebe o saldo para renderizar
-    const renderRenda = (renda, saldo) => {
+    const renderRendaESaldo = (renda, saldo) => {
         const salario = renda?.salario || 0;
         const vale = renda?.vale || 0;
         document.getElementById('renda-salario').textContent = formatarMoeda(salario);
@@ -188,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const themeIcon = themeToggleBtn.querySelector('i');
         const applyTheme = (theme) => {
             document.body.classList.toggle('dark-mode', theme === 'dark');
+            document.documentElement.classList.remove('dark-mode-preload');
             themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         };
         const currentTheme = localStorage.getItem('nortis_theme');

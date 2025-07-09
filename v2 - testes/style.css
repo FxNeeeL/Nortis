@@ -7,14 +7,20 @@
     --color-border: #D9C5B4;
     --color-action: #B96149;
     --color-action-hover: #A95839;
-    --color-positive: #A3B18A;
+    --color-positive: #228B22;
     --color-warning: #D4A373;
     --color-critical: #9D5C63;
     --color-critical-hover: #8a4a51;
+    --color-balance-bg: #4A5759;
     --color-shadow: rgba(0,0,0,0.06);
     --font-serif: 'Lora', serif;
     --font-sans: 'Poppins', sans-serif;
 }
+
+html.dark-mode-preload {
+    background-color: #22272B;
+}
+
 body.dark-mode {
     --color-background: #22272B;
     --color-background-hover: #333a40;
@@ -24,10 +30,13 @@ body.dark-mode {
     --color-border: #444B52;
     --color-action: #d37a62;
     --color-action-hover: #c26e58;
+    --color-positive: #68d391;
     --color-critical: #b16a72;
     --color-critical-hover: #c47981;
+    --color-balance-bg: #3b4547;
     --color-shadow: rgba(0,0,0,0.2);
 }
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--font-sans); background-color: var(--color-background); color: var(--color-primary-text); line-height: 1.6; transition: background-color 0.3s ease, color 0.3s ease; }
 .app-container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 60px 24px 40px 24px; }
@@ -44,13 +53,14 @@ header { flex-shrink: 0; }
 .vertical-menu a:hover, .vertical-menu button:hover { background-color: var(--color-background-hover); }
 .vertical-menu i { font-size: 1.2rem; width: 20px; text-align: center; color: var(--color-secondary-text); }
 .highlight-cards { display: flex; gap: 24px; flex-wrap: wrap; }
-.highlight-card { background-color: var(--color-surface); border-radius: 12px; padding: 16px 24px; text-align: center; box-shadow: 0 4px 20px var(--color-shadow); flex: 1; position: relative; transition: background-color 0.3s ease, box-shadow 0.3s ease; }
-.highlight-header { display: flex; justify-content: center; align-items: center; margin-bottom: 4px; width: 100%; }
-.highlight-card h3 { color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 400; margin: 0; }
-.highlight-amount { font-size: 2rem; font-weight: 700; color: var(--color-primary-text); margin: 0; }
-.highlight-card.balance { background-color: var(--color-action); }
-.highlight-card.balance h3 { color: rgba(255,255,255,0.8); }
-.highlight-card.balance .highlight-amount { color: white; }
+.highlight-card { background-color: var(--color-surface); border-radius: 12px; padding: 16px 24px; box-shadow: 0 4px 20px var(--color-shadow); flex: 1; position: relative; transition: background-color 0.3s ease, box-shadow 0.3s ease; text-align: left; }
+.highlight-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; width: 100%; }
+.highlight-card h3 { display: flex; align-items: center; gap: 8px; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; margin: 0; }
+.highlight-amount { font-size: 2rem; font-weight: 700; color: var(--color-primary-text); margin: 0; text-align: left; }
+.highlight-amount.positive, .highlight-header .positive { color: var(--color-positive); }
+.highlight-card.balance { background-color: var(--color-balance-bg); }
+.highlight-card.balance h3, .highlight-card.balance .highlight-amount { color: white; }
+.highlight-card.balance .highlight-header i { color: rgba(255, 255, 255, 0.7); }
 .edit-income-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--color-secondary-text); cursor: pointer; font-size: 0.9rem; padding: 5px; border-radius: 50%; width: 30px; height: 30px; line-height: 1; transition: all 0.2s ease; }
 .edit-income-btn:hover { background-color: var(--color-background); color: var(--color-action); }
 .card-vencimentos { display: flex; flex-direction: column; min-height: 0; }
@@ -112,7 +122,7 @@ body.dark-mode .list-item--just-paid { animation: payment-success-dark 1.5s ease
 .btn-confirm.delete { background-color: var(--color-critical); }
 .btn-confirm.delete:hover { background-color: var(--color-critical-hover); }
 
-/* Estilos para history.html */
+/* Estilos para history.html e login/registro */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; transition: border-color 0.3s ease; }
 .page-title { font-size: 2rem; margin: 0; }
 .back-btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; transition: color 0.2s ease; }
@@ -138,8 +148,6 @@ body.dark-mode .summary-item.balance.positive p, body.dark-mode .summary-item.ba
 .bill-list.report-mode .list-item:hover .list-item-actions { opacity: 0; }
 .header-action-btn { background: none; border: none; font-size: 1.5rem; color: var(--color-secondary-text); cursor: pointer; transition: color 0.2s ease; padding: 0; text-decoration: none; display: inline-flex; align-items: center; }
 .header-action-btn:hover { color: var(--color-action); }
-
-/* Estilos para login/registro */
 .login-page-body { display: grid; place-items: center; min-height: 100vh; padding: 20px; }
 .login-container { width: 100%; max-width: 400px; padding: 40px; background-color: var(--color-surface); border-radius: 12px; box-shadow: 0 8px 30px var(--color-shadow); text-align: center; }
 .login-icon { font-size: 3rem; margin-bottom: 16px; line-height: 1; }

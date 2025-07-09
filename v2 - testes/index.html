@@ -10,6 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script>
+        (function() {
+            const theme = localStorage.getItem('nortis_theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark-mode-preload');
+            }
+        })();
+    </script>
 </head>
 <body>
     <div class="app-container">
@@ -39,16 +47,15 @@
             <div class="right-column">
                 <section class="highlight-cards">
                     <div class="card highlight-card">
-                        <div class="highlight-header"><h3>Salário</h3><button class="edit-income-btn" data-type="salario"><i class="fas fa-pencil-alt"></i></button></div>
-                        <p class="highlight-amount" id="renda-salario">R$ 0,00</p>
+                        <div class="highlight-header"><h3><i class="fas fa-arrow-up positive"></i> Salário</h3><button class="edit-income-btn" data-type="salario"><i class="fas fa-pencil-alt"></i></button></div>
+                        <p class="highlight-amount positive" id="renda-salario">R$ 0,00</p>
                     </div>
                     <div class="card highlight-card">
-                        <div class="highlight-header"><h3>Vale</h3><button class="edit-income-btn" data-type="vale"><i class="fas fa-pencil-alt"></i></button></div>
-                        <p class="highlight-amount" id="renda-vale">R$ 0,00</p>
+                        <div class="highlight-header"><h3><i class="fas fa-arrow-up positive"></i> Vale</h3><button class="edit-income-btn" data-type="vale"><i class="fas fa-pencil-alt"></i></button></div>
+                        <p class="highlight-amount positive" id="renda-vale">R$ 0,00</p>
                     </div>
-                    <!-- MUDANÇA: Card de Renda Total trocado por Saldo Atual -->
                     <div class="card highlight-card balance">
-                        <h3>Saldo Atual</h3>
+                        <div class="highlight-header"><h3><i class="fas fa-balance-scale"></i> Saldo Atual</h3></div>
                         <p class="highlight-amount" id="saldo-atual">R$ 0,00</p>
                     </div>
                 </section>
