@@ -50,7 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const vale = renda?.vale || 0;
         document.getElementById('renda-salario').textContent = formatarMoeda(salario);
         document.getElementById('renda-vale').textContent = formatarMoeda(vale);
-        document.getElementById('saldo-atual').textContent = formatarMoeda(saldo);
+        
+        const saldoEl = document.getElementById('saldo-atual');
+        saldoEl.textContent = formatarMoeda(saldo);
+        
+        // MUDANÇA: Lógica para aplicar a cor do saldo
+        saldoEl.classList.remove('positive', 'negative');
+        if (saldo >= 0) {
+            saldoEl.classList.add('positive');
+        } else {
+            saldoEl.classList.add('negative');
+        }
     };
 
     const renderVencimentos = (vencimentos = []) => {
@@ -91,14 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     const apiRequest = async (endpoint, method = 'GET', body = null) => {
-        const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
+        const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
         const config = { method, headers };
-        if (body) {
-            config.body = JSON.stringify(body);
-        }
+        if (body) { config.body = JSON.stringify(body); }
         const response = await fetch(`${API_URL}${endpoint}`, config);
         if (response.status === 401 || response.status === 403) {
             localStorage.removeItem('nortis_token');
