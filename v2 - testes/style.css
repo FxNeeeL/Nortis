@@ -15,11 +15,6 @@
     --font-serif: 'Lora', serif;
     --font-sans: 'Poppins', sans-serif;
 }
-
-html.dark-mode-preload {
-    background-color: #22272B;
-}
-
 body.dark-mode {
     --color-background: #22272B;
     --color-background-hover: #333a40;
@@ -33,42 +28,31 @@ body.dark-mode {
     --color-critical-hover: #c47981;
     --color-shadow: rgba(0,0,0,0.2);
 }
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--font-sans); background-color: var(--color-background); color: var(--color-primary-text); line-height: 1.6; transition: background-color 0.3s ease, color 0.3s ease; }
-.app-container {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 60px 24px 40px 24px; 
-}
+.app-container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 60px 24px 40px 24px; }
 h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
-
 .main-layout-grid { display: grid; grid-template-columns: 1fr 2.5fr; gap: 32px; align-items: start; }
 .left-column { position: sticky; top: 40px; display: flex; flex-direction: column; gap: 24px; }
 .right-column { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
-
 header { flex-shrink: 0; }
 .header-main { display: flex; justify-content: space-between; align-items: flex-start; }
 .header-title { font-size: 2.2rem; margin: 0; }
 .current-month-indicator { font-family: var(--font-serif); font-size: 1.1rem; color: var(--color-secondary-text); margin-top: -8px; }
-
 .vertical-menu { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 .vertical-menu a, .vertical-menu button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; text-decoration: none; color: var(--color-primary-text); background: none; border: none; font-family: var(--font-sans); font-size: 1.1rem; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; text-align: left; }
 .vertical-menu a:hover, .vertical-menu button:hover { background-color: var(--color-background-hover); }
 .vertical-menu i { font-size: 1.2rem; width: 20px; text-align: center; color: var(--color-secondary-text); }
-
 .highlight-cards { display: flex; gap: 24px; flex-wrap: wrap; }
 .highlight-card { background-color: var(--color-surface); border-radius: 12px; padding: 16px 24px; text-align: center; box-shadow: 0 4px 20px var(--color-shadow); flex: 1; position: relative; transition: background-color 0.3s ease, box-shadow 0.3s ease; }
 .highlight-header { display: flex; justify-content: center; align-items: center; margin-bottom: 4px; width: 100%; }
 .highlight-card h3 { color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 400; margin: 0; }
 .highlight-amount { font-size: 2rem; font-weight: 700; color: var(--color-primary-text); margin: 0; }
-.highlight-card.total { background-color: var(--color-positive); }
-.highlight-card.total h3 { color: rgba(255,255,255,0.8); }
-.highlight-card.total .highlight-amount { color: white; }
+.highlight-card.balance { background-color: var(--color-action); }
+.highlight-card.balance h3 { color: rgba(255,255,255,0.8); }
+.highlight-card.balance .highlight-amount { color: white; }
 .edit-income-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--color-secondary-text); cursor: pointer; font-size: 0.9rem; padding: 5px; border-radius: 50%; width: 30px; height: 30px; line-height: 1; transition: all 0.2s ease; }
 .edit-income-btn:hover { background-color: var(--color-background); color: var(--color-action); }
-
 .card-vencimentos { display: flex; flex-direction: column; min-height: 0; }
 .card { background-color: var(--color-surface); padding: 24px; border-radius: 12px; box-shadow: 0 4px 20px var(--color-shadow); transition: background-color 0.3s ease, box-shadow 0.3s ease; }
 .card h2 { margin-bottom: 16px; font-size: 1.5rem; }
@@ -95,7 +79,6 @@ header { flex-shrink: 0; }
 body.dark-mode .list-item--just-paid { animation: payment-success-dark 1.5s ease-out; }
 .card-footer { border-bottom: 1px solid var(--color-border); padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; transition: border-color 0.3s ease; }
 .card-footer span:last-child { color: var(--color-action); }
-
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: grid; place-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; z-index: 2000; }
 .modal-overlay.hidden { transition: opacity 0.3s ease, visibility 0s 0.3s; }
 .modal-overlay:not(.hidden) { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s; }

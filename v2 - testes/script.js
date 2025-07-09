@@ -41,17 +41,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const saudacao = (hora >= 5 && hora < 12) ? "Bom dia" : (hora >= 12 && hora < 18) ? "Boa tarde" : "Boa noite";
         document.querySelector('.header-title').textContent = `${saudacao}, ${userName}.`;
         document.querySelector('.current-month-indicator').textContent = `Análise de ${new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`;
-        renderRenda(appData.rendaMensal);
+        
+        // MUDANÇA: Passa o saldo para a função renderRenda
+        renderRenda(appData.rendaMensal, appData.saldoAtual); 
+        
         renderVencimentos(appData.vencimentos);
     };
     
-    const renderRenda = (renda) => {
+    // MUDANÇA: Função agora recebe o saldo para renderizar
+    const renderRenda = (renda, saldo) => {
         const salario = renda?.salario || 0;
         const vale = renda?.vale || 0;
-        const rendaTotal = salario + vale;
         document.getElementById('renda-salario').textContent = formatarMoeda(salario);
         document.getElementById('renda-vale').textContent = formatarMoeda(vale);
-        document.getElementById('renda-total').textContent = formatarMoeda(rendaTotal);
+        document.getElementById('saldo-atual').textContent = formatarMoeda(saldo);
     };
 
     const renderVencimentos = (vencimentos = []) => {
@@ -67,10 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let itemClass = isPaid ? 'list-item--paid' : '';
             if (isOverdue) itemClass += ' list-item--overdue';
             const iconClass = isPaid ? 'fa-check' : v.icone;
-            
             let dateText;
             let dateClass = '';
-            
             if (isPaid) {
                 dateText = `Pago em ${v.dataPagamento}`;
             } else if (isOverdue) {
@@ -81,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 dateText = `Vence em ${v.diasRestantes} dia(s)`;
             }
-
             if (!isPaid) {
                 totalAVencer += v.valor;
             }
@@ -188,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const themeIcon = themeToggleBtn.querySelector('i');
         const applyTheme = (theme) => {
             document.body.classList.toggle('dark-mode', theme === 'dark');
-            document.documentElement.classList.remove('dark-mode-preload');
             themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         };
         const currentTheme = localStorage.getItem('nortis_theme');

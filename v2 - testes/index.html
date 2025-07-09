@@ -14,7 +14,6 @@
 <body>
     <div class="app-container">
         <div class="main-layout-grid">
-            
             <aside class="left-column">
                 <header>
                     <div class="header-main">
@@ -22,7 +21,6 @@
                     </div>
                     <p class="current-month-indicator"></p>
                 </header>
-
                 <nav class="vertical-menu">
                     <a href="history.html" id="history-btn">
                         <i class="fas fa-history"></i>
@@ -38,7 +36,6 @@
                     </button>
                 </nav>
             </aside>
-
             <div class="right-column">
                 <section class="highlight-cards">
                     <div class="card highlight-card">
@@ -49,12 +46,12 @@
                         <div class="highlight-header"><h3>Vale</h3><button class="edit-income-btn" data-type="vale"><i class="fas fa-pencil-alt"></i></button></div>
                         <p class="highlight-amount" id="renda-vale">R$ 0,00</p>
                     </div>
-                    <div class="card highlight-card total">
-                        <h3>Renda Total</h3>
-                        <p class="highlight-amount" id="renda-total">R$ 0,00</p>
+                    <!-- MUDANÇA: Card de Renda Total trocado por Saldo Atual -->
+                    <div class="card highlight-card balance">
+                        <h3>Saldo Atual</h3>
+                        <p class="highlight-amount" id="saldo-atual">R$ 0,00</p>
                     </div>
                 </section>
-        
                 <main class="dashboard-grid">
                     <div class="card card-vencimentos">
                         <div class="card-header">
@@ -71,7 +68,6 @@
             </div>
         </div>
     </div>
-
     <!-- Modais -->
     <div class="modal-overlay hidden" id="renda-modal">
         <div class="modal-content">
@@ -84,7 +80,6 @@
             </form>
         </div>
     </div>
-    
     <div class="modal-overlay hidden" id="add-due-date-modal">
         <div class="modal-content">
             <button class="modal-close-btn">×</button>
@@ -97,7 +92,6 @@
             </form>
         </div>
     </div>
-    
     <div class="modal-overlay hidden" id="edit-due-date-modal">
         <div class="modal-content">
             <button class="modal-close-btn">×</button>
@@ -114,13 +108,9 @@
             </form>
         </div>
     </div>
-    
     <div class="modal-overlay hidden" id="confirmation-modal">
         <div class="modal-content confirmation-box"><h3 id="confirmation-title" class="modal-subtitle"></h3><p id="confirmation-message"></p><div class="form-actions"><button id="confirm-cancel-btn" class="btn-secondary">Cancelar</button><button id="confirm-action-btn" class="btn-confirm">Confirmar</button></div></div>
     </div>
-
-    <!-- O container da notificação foi REMOVIDO daqui -->
-
     <script src="script.js"></script>
 </body>
 </html>
