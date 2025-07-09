@@ -51,6 +51,8 @@ header { flex-shrink: 0; }
 .vertical-menu a:hover, .vertical-menu button:hover { background-color: var(--color-background-hover); }
 .vertical-menu i { font-size: 1.2rem; width: 20px; text-align: center; color: var(--color-secondary-text); }
 .highlight-cards { display: flex; gap: 24px; flex-wrap: wrap; }
+
+/* === BLOCO DE CÓDIGO CORRIGIDO === */
 .highlight-card {
     background-color: var(--color-surface); 
     border-radius: 12px; 
@@ -59,16 +61,14 @@ header { flex-shrink: 0; }
     flex: 1; 
     position: relative; 
     transition: background-color 0.3s ease, box-shadow 0.3s ease; 
-    /* MUDANÇA: Alinhamento geral do card para o centro */
     text-align: center; 
 }
-.highlight-header {
-    /* MUDANÇA: Centraliza o h3, mas mantém o botão de editar no canto */
+.highlight-header { 
+    display: flex; 
     justify-content: center;
     align-items: center; 
     margin-bottom: 8px; 
     width: 100%;
-    position: relative; /* Necessário para o posicionamento absoluto do botão de editar */
 }
 .highlight-card h3 { 
     display: flex; 
@@ -84,26 +84,19 @@ header { flex-shrink: 0; }
     font-weight: 700; 
     color: var(--color-primary-text); 
     margin: 0; 
-    /* MUDANÇA: Alinhamento do valor para o centro */
     text-align: center; 
-}
-
-/* O edit-income-btn já está com position: absolute, o que é perfeito para este layout. */
-.edit-income-btn {
-    position: absolute;
-    top: -5px; /* Ajuste fino da posição vertical */
-    right: 0;
-    /* ... o resto das regras do botão continuam iguais */
-}
-
-/* Garante que o H3 do card de Saldo (que não tem botão) fique perfeitamente centralizado */
-.highlight-card.balance .highlight-header {
-    justify-content: center;
 }
 .highlight-amount.positive, .highlight-header .positive { color: var(--color-positive); }
 .highlight-amount.negative { color: var(--color-critical); }
 .highlight-card.balance .highlight-header i { color: var(--color-positive); }
-.edit-income-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--color-secondary-text); cursor: pointer; font-size: 0.9rem; padding: 5px; border-radius: 50%; width: 30px; height: 30px; line-height: 1; transition: all 0.2s ease; }
+.edit-income-btn { 
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none; border: none; color: var(--color-secondary-text); cursor: pointer; font-size: 0.9rem; padding: 5px; border-radius: 50%; width: 30px; height: 30px; line-height: 1; transition: all 0.2s ease; 
+}
+/* === FIM DO BLOCO DE CÓDIGO CORRIGIDO === */
+
 .edit-income-btn:hover { background-color: var(--color-background); color: var(--color-action); }
 .card-vencimentos { display: flex; flex-direction: column; min-height: 0; }
 .card { background-color: var(--color-surface); padding: 24px; border-radius: 12px; box-shadow: 0 4px 20px var(--color-shadow); transition: background-color 0.3s ease, box-shadow 0.3s ease; }
@@ -164,7 +157,6 @@ body.dark-mode .list-item--just-paid { animation: payment-success-dark 1.5s ease
 .btn-confirm.delete { background-color: var(--color-critical); }
 .btn-confirm.delete:hover { background-color: var(--color-critical-hover); }
 
-/* Estilos para history.html e login/registro */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; transition: border-color 0.3s ease; }
 .page-title { font-size: 2rem; margin: 0; }
 .back-btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; transition: color 0.2s ease; }
@@ -177,7 +169,7 @@ body.dark-mode .list-item--just-paid { animation: payment-success-dark 1.5s ease
 #report-output .empty-state i { margin-bottom: 16px; color: var(--color-border); transition: color 0.3s ease; }
 #report-output .empty-state.error i { color: var(--color-critical); }
 .report-card { display: flex; flex-direction: column; gap: 24px; }
-.report-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center; } /* Garante centralização dos itens do grid */
+.report-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center; }
 .report-summary .summary-item { background-color: var(--color-background); padding: 20px; border-radius: 12px; transition: background-color 0.3s ease; }
 .report-summary .summary-item span { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; color: var(--color-secondary-text); margin-bottom: 8px; }
 .report-summary .summary-item p { font-size: 1.75rem; font-weight: 700; margin: 0; }
