@@ -56,17 +56,8 @@ header { flex-shrink: 0; }
 .highlight-card h3 { display: flex; align-items: center; gap: 8px; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; margin: 0; }
 .highlight-amount { font-size: 2rem; font-weight: 700; color: var(--color-primary-text); margin: 0; text-align: left; }
 .highlight-amount.positive, .highlight-header .positive { color: var(--color-positive); }
-
-/* MUDANÇA: Nova classe para o valor negativo do saldo */
-.highlight-amount.negative {
-    color: var(--color-critical);
-}
-
-/* O fundo específico do .balance foi removido, então ele usará o fundo padrão de .highlight-card */
-.highlight-card.balance .highlight-header i {
-    color: var(--color-positive); /* Ícone da balança agora usa a cor positiva */
-}
-
+.highlight-amount.negative { color: var(--color-critical); }
+.highlight-card.balance .highlight-header i { color: var(--color-positive); }
 .edit-income-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--color-secondary-text); cursor: pointer; font-size: 0.9rem; padding: 5px; border-radius: 50%; width: 30px; height: 30px; line-height: 1; transition: all 0.2s ease; }
 .edit-income-btn:hover { background-color: var(--color-background); color: var(--color-action); }
 .card-vencimentos { display: flex; flex-direction: column; min-height: 0; }
@@ -128,11 +119,30 @@ body.dark-mode .list-item--just-paid { animation: payment-success-dark 1.5s ease
 .btn-confirm.delete { background-color: var(--color-critical); }
 .btn-confirm.delete:hover { background-color: var(--color-critical-hover); }
 
-/* Estilos de Páginas Adicionais */
+/* Estilos para history.html e login/registro */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; transition: border-color 0.3s ease; }
 .page-title { font-size: 2rem; margin: 0; }
 .back-btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; transition: color 0.2s ease; }
 .back-btn:hover { color: var(--color-action); }
+.history-container { display: flex; flex-direction: column; gap: 24px; }
+.report-controls form { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+.report-controls .form-group { flex-grow: 1; margin-bottom: 0; }
+.report-controls .btn-submit { flex-shrink: 0; }
+#report-output .empty-state { padding: 60px 20px; text-align: center; color: var(--color-secondary-text); border: 2px dashed var(--color-border); border-radius: 12px; transition: border-color 0.3s ease; }
+#report-output .empty-state i { margin-bottom: 16px; color: var(--color-border); transition: color 0.3s ease; }
+#report-output .empty-state.error i { color: var(--color-critical); }
+.report-card { display: flex; flex-direction: column; gap: 24px; }
+.report-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center; } /* Garante centralização dos itens do grid */
+.report-summary .summary-item { background-color: var(--color-background); padding: 20px; border-radius: 12px; transition: background-color 0.3s ease; }
+.report-summary .summary-item span { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; color: var(--color-secondary-text); margin-bottom: 8px; }
+.report-summary .summary-item p { font-size: 1.75rem; font-weight: 700; margin: 0; }
+.report-summary .summary-item.positive p, .report-summary .summary-item.positive i { color: var(--color-positive); }
+.report-summary .summary-item.negative p, .report-summary .summary-item.negative i { color: var(--color-critical); }
+.report-summary .summary-item.balance.positive p, .report-summary .summary-item.balance.positive i { color: #38a169; }
+body.dark-mode .report-summary .summary-item.balance.positive p, body.dark-mode .report-summary .summary-item.balance.positive i { color: #68d391; }
+.report-summary .summary-item.balance.negative p, .report-summary .summary-item.balance.negative i { color: var(--color-critical); }
+.report-subtitle { font-family: var(--font-sans); font-size: 1.2rem; font-weight: 600; border-top: 1px solid var(--color-border); padding-top: 24px; transition: border-color 0.3s ease; }
+.bill-list.report-mode .list-item:hover .list-item-actions { opacity: 0; }
 .header-action-btn { background: none; border: none; font-size: 1.5rem; color: var(--color-secondary-text); cursor: pointer; transition: color 0.2s ease; padding: 0; text-decoration: none; display: inline-flex; align-items: center; }
 .header-action-btn:hover { color: var(--color-action); }
 .login-page-body { display: grid; place-items: center; min-height: 100vh; padding: 20px; }

@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const themeIcon = themeToggleBtn.querySelector('i');
         const applyTheme = (theme) => {
             document.body.classList.toggle('dark-mode', theme === 'dark');
+            document.documentElement.classList.remove('dark-mode-preload');
             themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         };
         const currentTheme = localStorage.getItem('nortis_theme');
@@ -30,11 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderReport = (data, period) => {
         const outputDiv = document.getElementById('report-output');
         const { rendaMensal, vencimentos } = data;
+
         const rendaTotal = (rendaMensal?.salario || 0) + (rendaMensal?.vale || 0);
         const totalGasto = vencimentos.filter(v => v.pago).reduce((acc, v) => acc + v.valor, 0);
         const saldo = rendaTotal - totalGasto;
+
         const date = new Date(`${period}-02`);
         const periodFormatted = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
         let billsHTML = '';
         if (vencimentos.length === 0) {
             billsHTML = '<p class="empty-state">Nenhum vencimento registrado para este mês.</p>';
@@ -51,18 +55,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 </li>
             `).join('');
         }
+
+        // MUDANÇA: Voltamos à estrutura original com múltiplos cards, que funciona com o CSS existente.
         const reportHTML = `
             <div class="card report-card">
                 <h2>Relatório de ${periodFormatted}</h2>
+                
                 <div class="report-summary">
-                    <div class="summary-item positive"><span><i class="fas fa-arrow-up"></i> Renda Total</span><p>${formatarMoeda(rendaTotal)}</p></div>
-                    <div class="summary-item negative"><span><i class="fas fa-arrow-down"></i> Total Gasto</span><p>${formatarMoeda(totalGasto)}</p></div>
-                    <div class="summary-item balance ${saldo >= 0 ? 'positive' : 'negative'}"><span><i class="fas fa-balance-scale"></i> Saldo do Mês</span><p>${formatarMoeda(saldo)}</p></div>
+                    <div class="summary-item positive">
+                        <span><i class="fas fa-arrow-up"></i> Renda Total</span>
+                        <p>${formatarMoeda(rendaTotal)}</p>
+                    </div>
+                    <div class="summary-item negative">
+                        <span><i class="fas fa-arrow-down"></i> Total Gasto</span>
+                        <p>${formatarMoeda(totalGasto)}</p>
+                    </div>
+                    <div class="summary-item balance ${saldo >= 0 ? 'positive' : 'negative'}">
+                        <span><i class="fas fa-balance-scale"></i> Saldo do Mês</span>
+                        <p>${formatarMoeda(saldo)}</p>
+                    </div>
                 </div>
+
                 <h3 class="report-subtitle">Detalhes dos Vencimentos</h3>
                 <ul class="bill-list report-mode">${billsHTML}</ul>
             </div>
         `;
+
         outputDiv.innerHTML = reportHTML;
     };
 
