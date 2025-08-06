@@ -54,8 +54,8 @@
                         <div class="highlight-header"><h3><i class="fas fa-arrow-up positive"></i> Vale</h3><button class="edit-income-btn" data-type="vale"><i class="fas fa-pencil-alt"></i></button></div>
                         <p class="highlight-amount positive" id="renda-vale">R$ 0,00</p>
                     </div>
-                    <div class="card highlight-card balance">
-                        <div class="highlight-header"><h3><i class="fas fa-balance-scale"></i> Saldo Atual</h3></div>
+                    <div class="card highlight-card">
+                        <div class="highlight-header"><h3><i class="fas fa-balance-scale positive"></i> Saldo Atual</h3></div>
                         <p class="highlight-amount" id="saldo-atual">R$ 0,00</p>
                     </div>
                 </section>
@@ -95,6 +95,10 @@
                 <div class="form-group"><label>Descrição</label><input type="text" name="description" required></div>
                 <div class="form-group"><label>Valor</label><input type="text" name="value" required></div>
                 <div class="form-group"><label>Data de Vencimento</label><input type="date" name="dueDate" required></div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="recorrente" name="recorrente">
+                    <label for="recorrente">Este é um vencimento recorrente (mensal)</label>
+                </div>
                 <button type="submit" class="btn-submit">Salvar Vencimento</button>
             </form>
         </div>

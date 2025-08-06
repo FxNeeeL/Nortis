@@ -31,8 +31,10 @@ const VencimentoSchema = new mongoose.Schema({
     nome: { type: String, required: true },
     valor: { type: Number, required: true },
     dataOriginal: { type: String, required: true },
-    pago: { type: Boolean, default: false },
-    dataPagamento: String
+    pago: { type: Boolean, default: false }, // Para itens não-recorrentes
+    dataPagamento: String,
+    recorrente: { type: Boolean, default: false }, // Novo campo
+    pagamentosMensais: { type: [String], default: [] } // Novo campo: armazena "AAAA-MM" dos pagamentos
 });
 
 const UserSchema = new mongoose.Schema({
@@ -129,7 +131,6 @@ app.post('/api/login', async (req, res) => {
 
 app.get('/healthz', (req, res) => { res.status(200).send('OK'); });
 
-// MUDANÇA: Rota /api/financas agora calcula e retorna o saldoAtual
 app.get('/api/financas', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
@@ -137,28 +138,45 @@ app.get('/api/financas', authenticateToken, async (req, res) => {
 
         const hoje = new Date();
         const periodoAtual = `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
-        const vencimentosDoMes = user.financas.vencimentos.filter(v => v.dataOriginal && v.dataOriginal.startsWith(periodoAtual));
-        
+        const diaOriginalVencimento = (dateStr) => dateStr.split('-')[2];
+
+        let vencimentosParaExibir = [];
+
+        user.financas.vencimentos.forEach(v => {
+            const periodoCriacao = v.dataOriginal.substring(0, 7);
+
+            if (v.recorrente) {
+                if (periodoCriacao <= periodoAtual) {
+                    const pagoEsteMes = v.pagamentosMensais.includes(periodoAtual);
+                    const vencimentoProjetado = {
+                        ...v.toObject(),
+                        id: v._id,
+                        pago: pagoEsteMes,
+                        dataOriginal: `${periodoAtual}-${diaOriginalVencimento(v.dataOriginal)}`
+                    };
+                    vencimentosParaExibir.push(vencimentoProjetado);
+                }
+            } else {
+                if (periodoCriacao === periodoAtual) {
+                    vencimentosParaExibir.push({ ...v.toObject(), id: v._id });
+                }
+            }
+        });
+
         const rendaTotal = (user.financas.rendaMensal.salario || 0) + (user.financas.rendaMensal.vale || 0);
-        const totalGasto = vencimentosDoMes
+        const totalGasto = vencimentosParaExibir
             .filter(v => v.pago)
             .reduce((acc, v) => acc + v.valor, 0);
-        
         const saldoAtual = rendaTotal - totalGasto;
 
         const financasDoMes = {
             rendaMensal: user.financas.rendaMensal,
-            vencimentos: vencimentosDoMes.map(v => ({
-                id: v._id,
+            vencimentos: vencimentosParaExibir.map(v => ({
+                ...v,
                 diasRestantes: calculateDiffDays(v.dataOriginal),
                 icone: getIconForDescription(v.nome),
-                nome: v.nome,
-                valor: v.valor,
-                dataOriginal: v.dataOriginal,
-                pago: v.pago,
-                dataPagamento: v.dataPagamento
             })),
-            saldoAtual: saldoAtual 
+            saldoAtual: saldoAtual
         };
         res.json(financasDoMes);
     } catch (error) {
@@ -177,10 +195,28 @@ app.get('/api/financas/historico', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: "Formato de período inválido." });
         }
         
-        const filteredVencimentos = user.financas.vencimentos.filter(v => v.dataOriginal && v.dataOriginal.startsWith(period));
+        const filteredVencimentos = user.financas.vencimentos.map(v => {
+            if (v.recorrente) {
+                const periodoCriacao = v.dataOriginal.substring(0, 7);
+                if (periodoCriacao <= period) {
+                    const diaOriginal = v.dataOriginal.split('-')[2];
+                    return {
+                        ...v.toObject(),
+                        pago: v.pagamentosMensais.includes(period),
+                        dataOriginal: `${period}-${diaOriginal}`
+                    };
+                }
+            } else {
+                if (v.dataOriginal.startsWith(period)) {
+                    return v.toObject();
+                }
+            }
+            return null;
+        }).filter(Boolean); // Remove os nulos
+        
         const reportData = {
             rendaMensal: user.financas.rendaMensal,
-            vencimentos: filteredVencimentos.map(v => ({...v.toObject(), icone: getIconForDescription(v.nome)}))
+            vencimentos: filteredVencimentos.map(v => ({...v, icone: getIconForDescription(v.nome)}))
         };
         res.status(200).json(reportData);
     } catch (error) {
@@ -206,8 +242,14 @@ app.post('/api/vencimentos', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
-        const { description, dueDate, value } = req.body;
-        const novoVencimento = { nome: description, valor: parseCurrency(value), dataOriginal: dueDate };
+
+        const { description, dueDate, value, recorrente } = req.body;
+        const novoVencimento = { 
+            nome: description, 
+            valor: parseCurrency(value), 
+            dataOriginal: dueDate,
+            recorrente: !!recorrente
+        };
         user.financas.vencimentos.push(novoVencimento);
         await user.save();
         const savedVencimento = user.financas.vencimentos[user.financas.vencimentos.length - 1];
@@ -226,6 +268,7 @@ app.put('/api/vencimentos/:id', authenticateToken, async (req, res) => {
             vencimento.nome = req.body.description;
             vencimento.valor = parseCurrency(req.body.value);
             vencimento.dataOriginal = req.body.dueDate;
+            // A lógica de recorrência não é editável após a criação para simplificar
             await user.save();
             return res.status(200).json(vencimento);
         }
@@ -239,10 +282,19 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
+        
         const vencimento = user.financas.vencimentos.id(req.params.id);
         if (vencimento) {
-            vencimento.pago = true;
-            vencimento.dataPagamento = new Date().toLocaleDateString('pt-BR');
+            if (vencimento.recorrente) {
+                const hoje = new Date();
+                const periodoAtual = `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
+                if (!vencimento.pagamentosMensais.includes(periodoAtual)) {
+                    vencimento.pagamentosMensais.push(periodoAtual);
+                }
+            } else {
+                vencimento.pago = true;
+                vencimento.dataPagamento = new Date().toLocaleDateString('pt-BR');
+            }
             await user.save();
             return res.status(200).json(vencimento);
         }
@@ -256,9 +308,13 @@ app.delete('/api/vencimentos/:id', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
+        
         const vencimento = user.financas.vencimentos.id(req.params.id);
-        if(!vencimento) return res.status(404).json({ message: "Vencimento não encontrado." });
+        if(!vencimento) {
+            return res.status(404).json({ message: "Vencimento não encontrado." });
+        }
         vencimento.remove();
+
         await user.save();
         return res.status(200).json({ message: "Vencimento removido permanentemente" });
     } catch (error) {

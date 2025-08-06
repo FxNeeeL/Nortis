@@ -48,3 +48,17 @@
 2025-07-08 16:21:31 - Finished nortisappserver.exe
 2025-07-08 16:21:32 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 "C:\Users\Matheus Campanhari\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\Matheus Campanhari\Desktop\Nortis\v2 - testes\server.js" --scriptoptions= --log "NortisAppServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
 2025-07-08 16:21:32 - Started 5560
+2025-07-08 21:58:42 - Stopping nortisappserver.exe
+2025-07-08 21:58:42 - ProcessKill 5560
+2025-07-08 21:58:42 - Found child process: 2552 Name: conhost.exe
+2025-07-08 21:58:42 - Found child process: 1288 Name: node.exe
+2025-07-08 21:58:42 - Stopping process 2552
+2025-07-08 21:58:42 - Send SIGINT 2552
+2025-07-08 21:58:42 - SIGINT to 2552 failed - Killing as fallback
+2025-07-08 21:58:42 - Stopping process 1288
+2025-07-08 21:58:42 - Send SIGINT 1288
+2025-07-08 21:58:42 - SIGINT to 1288 failed - Killing as fallback
+2025-07-08 21:58:42 - Stopping process 5560
+2025-07-08 21:58:42 - Send SIGINT 5560
+2025-07-08 21:58:42 - SIGINT to 5560 failed - Killing as fallback
+2025-07-08 21:58:42 - Finished nortisappserver.exe
