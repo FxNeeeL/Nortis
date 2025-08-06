@@ -117,15 +117,23 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) return res.status(401).json({ message: "E-mail ou senha inválidos." });
+        if (!email || !password) {
+            return res.status(400).json({ message: "E-mail e senha são obrigatórios." });
+        }
+        const user = await User.findOne({ email: email.toLowerCase() }).lean();
+        if (!user) {
+            await bcrypt.compare('dummyPassword', '$2a$10$abcdefghijklmnopqrstuv'); 
+            return res.status(401).json({ message: "E-mail ou senha inválidos." });
+        }
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
-        if (!isPasswordCorrect) return res.status(401).json({ message: "E-mail ou senha inválidos." });
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ message: "E-mail ou senha inválidos." });
+        }
         const accessToken = jwt.sign({ id: user._id, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
-        res.json({ accessToken, userName: user.name });
+        return res.status(200).json({ accessToken, userName: user.name });
     } catch (error) {
-        console.error("Erro no login:", error);
-        res.status(500).json({ message: "Ocorreu um erro interno no servidor." });
+        console.error("Erro CRÍTICO na rota de login:", error);
+        return res.status(500).json({ message: "Ocorreu um erro interno. Tente novamente mais tarde." });
     }
 });
 
@@ -144,7 +152,6 @@ app.get('/api/financas', authenticateToken, async (req, res) => {
 
         user.financas.vencimentos.forEach(v => {
             const periodoCriacao = v.dataOriginal.substring(0, 7);
-
             if (v.recorrente) {
                 if (periodoCriacao <= periodoAtual) {
                     const pagoEsteMes = v.pagamentosMensais.includes(periodoAtual);
@@ -189,22 +196,16 @@ app.get('/api/financas/historico', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
-        
         const { period } = req.query;
         if (!period || !/^\d{4}-\d{2}$/.test(period)) {
             return res.status(400).json({ message: "Formato de período inválido." });
         }
-        
         const filteredVencimentos = user.financas.vencimentos.map(v => {
             if (v.recorrente) {
                 const periodoCriacao = v.dataOriginal.substring(0, 7);
                 if (periodoCriacao <= period) {
                     const diaOriginal = v.dataOriginal.split('-')[2];
-                    return {
-                        ...v.toObject(),
-                        pago: v.pagamentosMensais.includes(period),
-                        dataOriginal: `${period}-${diaOriginal}`
-                    };
+                    return { ...v.toObject(), pago: v.pagamentosMensais.includes(period), dataOriginal: `${period}-${diaOriginal}` };
                 }
             } else {
                 if (v.dataOriginal.startsWith(period)) {
@@ -213,7 +214,6 @@ app.get('/api/financas/historico', authenticateToken, async (req, res) => {
             }
             return null;
         }).filter(Boolean);
-        
         const reportData = {
             rendaMensal: user.financas.rendaMensal,
             vencimentos: filteredVencimentos.map(v => ({...v, icone: getIconForDescription(v.nome)}))
@@ -243,12 +243,7 @@ app.post('/api/vencimentos', authenticateToken, async (req, res) => {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
         const { description, dueDate, value, recorrente } = req.body;
-        const novoVencimento = { 
-            nome: description, 
-            valor: parseCurrency(value), 
-            dataOriginal: dueDate,
-            recorrente: !!recorrente
-        };
+        const novoVencimento = { nome: description, valor: parseCurrency(value), dataOriginal: dueDate, recorrente: !!recorrente };
         user.financas.vencimentos.push(novoVencimento);
         await user.save();
         const savedVencimento = user.financas.vencimentos[user.financas.vencimentos.length - 1];
@@ -301,16 +296,19 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
     }
 });
 
+// MUDANÇA: Rota DELETE corrigida
 app.delete('/api/vencimentos/:id', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
-        const vencimento = user.financas.vencimentos.id(req.params.id);
-        if(!vencimento) return res.status(404).json({ message: "Vencimento não encontrado." });
-        vencimento.remove();
+        
+        // Usa o método .pull() do Mongoose para remover o subdocumento do array
+        user.financas.vencimentos.pull({ _id: req.params.id });
+
         await user.save();
         return res.status(200).json({ message: "Vencimento removido permanentemente" });
     } catch (error) {
+        console.error("Erro ao excluir vencimento:", error);
         res.status(500).json({ message: "Erro ao excluir vencimento." });
     }
 });
