@@ -159,7 +159,8 @@ app.get('/api/financas', authenticateToken, async (req, res) => {
                         ...v.toObject(),
                         id: v._id,
                         pago: pagoEsteMes,
-                        dataOriginal: `${periodoAtual}-${diaOriginalVencimento(v.dataOriginal)}`
+                        dataOriginal: `${periodoAtual}-${diaOriginalVencimento(v.dataOriginal)}`,
+                        dataPagamento: pagoEsteMes ? `Mês ${periodoAtual}` : undefined
                     };
                     vencimentosProjetados.push(vencimentoProjetado);
                 }
@@ -196,16 +197,23 @@ app.get('/api/financas/historico', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
+        
         const { period } = req.query;
         if (!period || !/^\d{4}-\d{2}$/.test(period)) {
             return res.status(400).json({ message: "Formato de período inválido." });
         }
+        
         const filteredVencimentos = user.financas.vencimentos.map(v => {
             if (v.recorrente) {
                 const periodoCriacao = v.dataOriginal.substring(0, 7);
                 if (periodoCriacao <= period) {
                     const diaOriginal = v.dataOriginal.split('-')[2];
-                    return { ...v.toObject(), pago: v.pagamentosMensais.includes(period), dataOriginal: `${period}-${diaOriginal}` };
+                    return {
+                        ...v.toObject(),
+                        pago: v.pagamentosMensais.includes(period),
+                        dataPagamento: v.pagamentosMensais.includes(period) ? `Mês ${period}` : undefined,
+                        dataOriginal: `${period}-${diaOriginal}`
+                    };
                 }
             } else {
                 if (v.dataOriginal.startsWith(period)) {
@@ -214,6 +222,7 @@ app.get('/api/financas/historico', authenticateToken, async (req, res) => {
             }
             return null;
         }).filter(Boolean);
+        
         const reportData = {
             rendaMensal: user.financas.rendaMensal,
             vencimentos: filteredVencimentos.map(v => ({...v, icone: getIconForDescription(v.nome)}))
@@ -243,7 +252,12 @@ app.post('/api/vencimentos', authenticateToken, async (req, res) => {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
         const { description, dueDate, value, recorrente } = req.body;
-        const novoVencimento = { nome: description, valor: parseCurrency(value), dataOriginal: dueDate, recorrente: !!recorrente };
+        const novoVencimento = { 
+            nome: description, 
+            valor: parseCurrency(value), 
+            dataOriginal: dueDate,
+            recorrente: !!recorrente
+        };
         user.financas.vencimentos.push(novoVencimento);
         await user.save();
         const savedVencimento = user.financas.vencimentos[user.financas.vencimentos.length - 1];
@@ -296,13 +310,11 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
     }
 });
 
-// MUDANÇA: Rota DELETE corrigida
 app.delete('/api/vencimentos/:id', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
         
-        // Usa o método .pull() do Mongoose para remover o subdocumento do array
         user.financas.vencimentos.pull({ _id: req.params.id });
 
         await user.save();
