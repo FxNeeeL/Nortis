@@ -31,10 +31,10 @@ const VencimentoSchema = new mongoose.Schema({
     nome: { type: String, required: true },
     valor: { type: Number, required: true },
     dataOriginal: { type: String, required: true },
-    pago: { type: Boolean, default: false }, // Para itens não-recorrentes
+    pago: { type: Boolean, default: false },
     dataPagamento: String,
-    recorrente: { type: Boolean, default: false }, // Novo campo
-    pagamentosMensais: { type: [String], default: [] } // Novo campo: armazena "AAAA-MM" dos pagamentos
+    recorrente: { type: Boolean, default: false },
+    pagamentosMensais: { type: [String], default: [] }
 });
 
 const UserSchema = new mongoose.Schema({
@@ -117,44 +117,19 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-
-        // Adiciona validação de entrada mais explícita
-        if (!email || !password) {
-            return res.status(400).json({ message: "E-mail e senha são obrigatórios." });
-        }
-
-        const user = await User.findOne({ email: email.toLowerCase() }).lean(); // .lean() é mais rápido para operações de leitura
-
-        if (!user) {
-            // Usa bcrypt.compare mesmo para usuários inexistentes para evitar "timing attacks"
-            // Isso não é estritamente necessário para este projeto, mas é uma boa prática de segurança.
-            await bcrypt.compare('dummyPassword', '$2a$10$abcdefghijklmnopqrstuv'); 
-            return res.status(401).json({ message: "E-mail ou senha inválidos." });
-        }
-        
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) return res.status(401).json({ message: "E-mail ou senha inválidos." });
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
-        
-        if (!isPasswordCorrect) {
-            return res.status(401).json({ message: "E-mail ou senha inválidos." });
-        }
-        
+        if (!isPasswordCorrect) return res.status(401).json({ message: "E-mail ou senha inválidos." });
         const accessToken = jwt.sign({ id: user._id, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
-        
-        // Retorna explicitamente o status 200 para clareza
-        return res.status(200).json({ accessToken, userName: user.name });
-
+        res.json({ accessToken, userName: user.name });
     } catch (error) {
-        console.error("Erro CRÍTICO na rota de login:", error);
-        // Garante que uma resposta seja sempre enviada, mesmo em caso de erro inesperado
-        return res.status(500).json({ message: "Ocorreu um erro interno. Tente novamente mais tarde." });
+        console.error("Erro no login:", error);
+        res.status(500).json({ message: "Ocorreu um erro interno no servidor." });
     }
 });
 
 app.get('/healthz', (req, res) => { res.status(200).send('OK'); });
-
-// server.js
-
-// ... (todo o código anterior permanece o mesmo) ...
 
 app.get('/api/financas', authenticateToken, async (req, res) => {
     try {
@@ -163,21 +138,43 @@ app.get('/api/financas', authenticateToken, async (req, res) => {
 
         const hoje = new Date();
         const periodoAtual = `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
-        
-        // ... (lógica de recorrência permanece a mesma) ...
+        const diaOriginalVencimento = (dateStr) => dateStr.split('-')[2];
+
+        let vencimentosProjetados = []; 
+
+        user.financas.vencimentos.forEach(v => {
+            const periodoCriacao = v.dataOriginal.substring(0, 7);
+
+            if (v.recorrente) {
+                if (periodoCriacao <= periodoAtual) {
+                    const pagoEsteMes = v.pagamentosMensais.includes(periodoAtual);
+                    const vencimentoProjetado = {
+                        ...v.toObject(),
+                        id: v._id,
+                        pago: pagoEsteMes,
+                        dataOriginal: `${periodoAtual}-${diaOriginalVencimento(v.dataOriginal)}`
+                    };
+                    vencimentosProjetados.push(vencimentoProjetado);
+                }
+            } else {
+                if (periodoCriacao === periodoAtual) {
+                    vencimentosProjetados.push({ ...v.toObject(), id: v._id });
+                }
+            }
+        });
+
+        const rendaTotal = (user.financas.rendaMensal.salario || 0) + (user.financas.rendaMensal.vale || 0);
+        const totalGasto = vencimentosProjetados
+            .filter(v => v.pago)
+            .reduce((acc, v) => acc + v.valor, 0);
+        const saldoAtual = rendaTotal - totalGasto;
 
         const financasDoMes = {
             rendaMensal: user.financas.rendaMensal,
-            vencimentos: vencimentosParaExibir.map(v => ({
-                id: v._id,
+            vencimentos: vencimentosProjetados.map(v => ({
+                ...v,
                 diasRestantes: calculateDiffDays(v.dataOriginal),
                 icone: getIconForDescription(v.nome),
-                nome: v.nome,
-                valor: v.valor,
-                dataOriginal: v.dataOriginal,
-                pago: v.pago,
-                // MUDANÇA: Garante que a dataPagamento seja incluída na resposta
-                dataPagamento: v.dataPagamento 
             })),
             saldoAtual: saldoAtual
         };
@@ -187,8 +184,6 @@ app.get('/api/financas', authenticateToken, async (req, res) => {
         res.status(500).json({ message: "Erro ao buscar finanças." });
     }
 });
-
-// ... (o resto do server.js continua igual) ...
 
 app.get('/api/financas/historico', authenticateToken, async (req, res) => {
     try {
@@ -217,7 +212,7 @@ app.get('/api/financas/historico', authenticateToken, async (req, res) => {
                 }
             }
             return null;
-        }).filter(Boolean); // Remove os nulos
+        }).filter(Boolean);
         
         const reportData = {
             rendaMensal: user.financas.rendaMensal,
@@ -247,7 +242,6 @@ app.post('/api/vencimentos', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
-
         const { description, dueDate, value, recorrente } = req.body;
         const novoVencimento = { 
             nome: description, 
@@ -273,7 +267,6 @@ app.put('/api/vencimentos/:id', authenticateToken, async (req, res) => {
             vencimento.nome = req.body.description;
             vencimento.valor = parseCurrency(req.body.value);
             vencimento.dataOriginal = req.body.dueDate;
-            // A lógica de recorrência não é editável após a criação para simplificar
             await user.save();
             return res.status(200).json(vencimento);
         }
@@ -287,7 +280,6 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
-        
         const vencimento = user.financas.vencimentos.id(req.params.id);
         if (vencimento) {
             if (vencimento.recorrente) {
@@ -313,13 +305,9 @@ app.delete('/api/vencimentos/:id', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
-        
         const vencimento = user.financas.vencimentos.id(req.params.id);
-        if(!vencimento) {
-            return res.status(404).json({ message: "Vencimento não encontrado." });
-        }
+        if(!vencimento) return res.status(404).json({ message: "Vencimento não encontrado." });
         vencimento.remove();
-
         await user.save();
         return res.status(200).json({ message: "Vencimento removido permanentemente" });
     } catch (error) {
