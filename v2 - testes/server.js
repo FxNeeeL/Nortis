@@ -22,9 +22,15 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log('Conectado ao MongoDB com sucesso!'))
     .catch(err => console.error('Falha ao conectar ao MongoDB:', err));
 
+// --- SCHEMAS E MODELOS ---
 const RendaSchema = new mongoose.Schema({
     salario: { type: Number, default: 0 },
     vale: { type: Number, default: 0 }
+}, { _id: false });
+
+const PagamentoMensalSchema = new mongoose.Schema({
+    mes: { type: String, required: true }, // Formato "AAAA-MM"
+    data: { type: String, required: true } // Formato "dd/mm/aaaa"
 }, { _id: false });
 
 const VencimentoSchema = new mongoose.Schema({
@@ -34,7 +40,7 @@ const VencimentoSchema = new mongoose.Schema({
     pago: { type: Boolean, default: false },
     dataPagamento: String,
     recorrente: { type: Boolean, default: false },
-    pagamentosMensais: { type: [String], default: [] }
+    pagamentosMensais: [PagamentoMensalSchema]
 });
 
 const UserSchema = new mongoose.Schema({
@@ -49,6 +55,7 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema);
 
+// --- FUNÇÕES AUXILIARES ---
 function getIconForDescription(description) {
     if (!description) return 'fa-file-invoice-dollar';
     const desc = description.toLowerCase();
@@ -78,6 +85,7 @@ function calculateDiffDays(dueDate) {
     return Math.round(diffTime / (1000 * 60 * 60 * 24));
 }
 
+// --- MIDDLEWARE DE AUTENTICAÇÃO ---
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -89,6 +97,7 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// --- ROTAS ---
 app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -154,13 +163,13 @@ app.get('/api/financas', authenticateToken, async (req, res) => {
             const periodoCriacao = v.dataOriginal.substring(0, 7);
             if (v.recorrente) {
                 if (periodoCriacao <= periodoAtual) {
-                    const pagoEsteMes = v.pagamentosMensais.includes(periodoAtual);
+                    const pagamentoDoMes = v.pagamentosMensais.find(p => p.mes === periodoAtual);
                     const vencimentoProjetado = {
                         ...v.toObject(),
                         id: v._id,
-                        pago: pagoEsteMes,
+                        pago: !!pagamentoDoMes,
                         dataOriginal: `${periodoAtual}-${diaOriginalVencimento(v.dataOriginal)}`,
-                        dataPagamento: pagoEsteMes ? `Mês ${periodoAtual}` : undefined
+                        dataPagamento: pagamentoDoMes ? pagamentoDoMes.data : undefined
                     };
                     vencimentosProjetados.push(vencimentoProjetado);
                 }
@@ -208,10 +217,11 @@ app.get('/api/financas/historico', authenticateToken, async (req, res) => {
                 const periodoCriacao = v.dataOriginal.substring(0, 7);
                 if (periodoCriacao <= period) {
                     const diaOriginal = v.dataOriginal.split('-')[2];
+                    const pagamentoDoMes = v.pagamentosMensais.find(p => p.mes === period);
                     return {
                         ...v.toObject(),
-                        pago: v.pagamentosMensais.includes(period),
-                        dataPagamento: v.pagamentosMensais.includes(period) ? `Mês ${period}` : undefined,
+                        pago: !!pagamentoDoMes,
+                        dataPagamento: pagamentoDoMes ? pagamentoDoMes.data : undefined,
                         dataOriginal: `${period}-${diaOriginal}`
                     };
                 }
@@ -291,15 +301,18 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
         const vencimento = user.financas.vencimentos.id(req.params.id);
         if (vencimento) {
+            const dataPagamentoHoje = new Date().toLocaleDateString('pt-BR');
             if (vencimento.recorrente) {
                 const hoje = new Date();
                 const periodoAtual = `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
-                if (!vencimento.pagamentosMensais.includes(periodoAtual)) {
-                    vencimento.pagamentosMensais.push(periodoAtual);
+                
+                const jaPagouEsteMes = vencimento.pagamentosMensais.some(p => p.mes === periodoAtual);
+                if (!jaPagouEsteMes) {
+                    vencimento.pagamentosMensais.push({ mes: periodoAtual, data: dataPagamentoHoje });
                 }
             } else {
                 vencimento.pago = true;
-                vencimento.dataPagamento = new Date().toLocaleDateString('pt-BR');
+                vencimento.dataPagamento = dataPagamentoHoje;
             }
             await user.save();
             return res.status(200).json(vencimento);
