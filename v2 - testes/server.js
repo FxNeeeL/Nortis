@@ -279,17 +279,25 @@ app.post('/api/vencimentos', authenticateToken, async (req, res) => {
 
 app.put('/api/vencimentos/:id', authenticateToken, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
-        const vencimento = user.financas.vencimentos.id(req.params.id);
-        if (vencimento) {
-            vencimento.nome = req.body.description;
-            vencimento.valor = parseCurrency(req.body.value);
-            vencimento.dataOriginal = req.body.dueDate;
-            await user.save();
-            return res.status(200).json(vencimento);
+        const { description, value, dueDate } = req.body;
+        const updatedUser = await User.findOneAndUpdate(
+            { "_id": req.user.id, "financas.vencimentos._id": req.params.id },
+            { 
+                $set: {
+                    "financas.vencimentos.$.nome": description,
+                    "financas.vencimentos.$.valor": parseCurrency(value),
+                    "financas.vencimentos.$.dataOriginal": dueDate,
+                }
+            },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "Vencimento não encontrado." });
         }
-        return res.status(404).json({ message: "Vencimento não encontrado." });
+        
+        const vencimento = updatedUser.financas.vencimentos.id(req.params.id);
+        res.status(200).json(vencimento);
     } catch (error) {
         res.status(500).json({ message: "Erro ao editar vencimento." });
     }
@@ -300,16 +308,13 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
         const userId = req.user.id;
         const vencimentoId = req.params.id;
 
-        const user = await User.findOne(
-            { _id: userId },
-            { "financas.vencimentos": { $elemMatch: { _id: vencimentoId } } }
-        );
+        const user = await User.findOne({ _id: userId, "financas.vencimentos._id": vencimentoId });
 
-        if (!user || !user.financas.vencimentos || user.financas.vencimentos.length === 0) {
+        if (!user) {
             return res.status(404).json({ message: "Vencimento não encontrado." });
         }
-        
-        const vencimento = user.financas.vencimentos[0];
+
+        const vencimento = user.financas.vencimentos.id(vencimentoId);
         const dataPagamentoHoje = new Date().toLocaleDateString('pt-BR');
         let updateQuery;
 
@@ -317,37 +322,26 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
             const hoje = new Date();
             const periodoAtual = `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
             const jaPagouEsteMes = vencimento.pagamentosMensais.some(p => p.mes === periodoAtual);
+            if (jaPagouEsteMes) return res.status(200).json(vencimento);
 
-            if (jaPagouEsteMes) {
-                return res.status(200).json(vencimento);
-            }
-            
-            updateQuery = {
-                $push: { "financas.vencimentos.$.pagamentosMensais": { mes: periodoAtual, data: dataPagamentoHoje } }
-            };
+            updateQuery = { $push: { "financas.vencimentos.$.pagamentosMensais": { mes: periodoAtual, data: dataPagamentoHoje } } };
         } else {
-            if (vencimento.pago) {
-                return res.status(200).json(vencimento);
-            }
-            
-            updateQuery = {
-                $set: { 
-                    "financas.vencimentos.$.pago": true,
-                    "financas.vencimentos.$.dataPagamento": dataPagamentoHoje
-                }
-            };
+            if (vencimento.pago) return res.status(200).json(vencimento);
+            updateQuery = { $set: { "financas.vencimentos.$.pago": true, "financas.vencimentos.$.dataPagamento": dataPagamentoHoje } };
         }
 
-        const result = await User.updateOne({ _id: userId, "financas.vencimentos._id": vencimentoId }, updateQuery);
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: userId, "financas.vencimentos._id": vencimentoId },
+            updateQuery,
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "Falha ao atualizar o vencimento." });
+        }
         
-        if (result.nModified === 0 && result.n === 0) {
-             return res.status(404).json({ message: "Vencimento não encontrado para atualização." });
-        }
-
-        const updatedUser = await User.findById(userId);
         const updatedVencimento = updatedUser.financas.vencimentos.id(vencimentoId);
-
-        return res.status(200).json(updatedVencimento);
+        res.status(200).json(updatedVencimento);
 
     } catch (error) {
         console.error("Erro ao pagar vencimento:", error);
