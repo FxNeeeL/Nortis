@@ -121,7 +121,6 @@ body.dark-mode .list-item--just-paid { animation: payment-success-dark 1.5s ease
 .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
 .checkbox-group input[type="checkbox"] { width: auto; height: 1.3em; width: 1.3em; flex-shrink: 0; cursor: pointer; }
 .checkbox-group label { margin-bottom: 0; font-weight: 500; color: var(--color-secondary-text); cursor: pointer; }
-/* Estilos para history.html e login/registro */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; transition: border-color 0.3s ease; }
 .page-title { font-size: 2rem; margin: 0; }
 .back-btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; transition: color 0.2s ease; }
@@ -165,4 +164,35 @@ body.dark-mode .report-summary .summary-item.balance.positive p, body.dark-mode 
 .login-link a { color: var(--color-action); font-weight: 500; text-decoration: none; }
 .login-link a:hover { text-decoration: underline; }
 
-@media (max-width: 1200px) { .main-layout-grid { grid-template-columns: 1fr; } .left-column { position: static; order: 1; } .right-column { order: 2; } }
+/* === MUDANÇA: Bloco de Media Query para Responsividade === */
+@media (max-width: 992px) {
+    .app-container {
+        padding: 40px 16px 24px 16px;
+    }
+    .main-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .left-column {
+        position: static;
+        order: 2; /* Menu e saudação vão para baixo */
+    }
+    .right-column {
+        order: 1; /* Conteúdo principal vai para cima */
+    }
+    .header-title {
+        font-size: 1.8rem;
+    }
+    .highlight-amount {
+        font-size: 1.75rem;
+    }
+    .bill-list {
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 32px 24px;
+    }
+}
