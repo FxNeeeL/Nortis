@@ -117,15 +117,36 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) return res.status(401).json({ message: "E-mail ou senha inválidos." });
+
+        // Adiciona validação de entrada mais explícita
+        if (!email || !password) {
+            return res.status(400).json({ message: "E-mail e senha são obrigatórios." });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase() }).lean(); // .lean() é mais rápido para operações de leitura
+
+        if (!user) {
+            // Usa bcrypt.compare mesmo para usuários inexistentes para evitar "timing attacks"
+            // Isso não é estritamente necessário para este projeto, mas é uma boa prática de segurança.
+            await bcrypt.compare('dummyPassword', '$2a$10$abcdefghijklmnopqrstuv'); 
+            return res.status(401).json({ message: "E-mail ou senha inválidos." });
+        }
+        
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
-        if (!isPasswordCorrect) return res.status(401).json({ message: "E-mail ou senha inválidos." });
+        
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ message: "E-mail ou senha inválidos." });
+        }
+        
         const accessToken = jwt.sign({ id: user._id, name: user.name }, JWT_SECRET, { expiresIn: '24h' });
-        res.json({ accessToken, userName: user.name });
+        
+        // Retorna explicitamente o status 200 para clareza
+        return res.status(200).json({ accessToken, userName: user.name });
+
     } catch (error) {
-        console.error("Erro no login:", error);
-        res.status(500).json({ message: "Ocorreu um erro interno no servidor." });
+        console.error("Erro CRÍTICO na rota de login:", error);
+        // Garante que uma resposta seja sempre enviada, mesmo em caso de erro inesperado
+        return res.status(500).json({ message: "Ocorreu um erro interno. Tente novamente mais tarde." });
     }
 });
 
