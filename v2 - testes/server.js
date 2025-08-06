@@ -299,30 +299,42 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
-        
-        const vencimento = user.financas.vencimentos.id(req.params.id);
-        if (vencimento) {
-            const dataPagamentoHoje = new Date().toLocaleDateString('pt-BR');
-            if (vencimento.recorrente) {
-                const hoje = new Date();
-                const periodoAtual = `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
-                
-                // MUDANÇA: Usando .some() para verificar se o pagamento já existe
-                const jaPagouEsteMes = vencimento.pagamentosMensais.some(p => p.mes === periodoAtual);
 
-                if (!jaPagouEsteMes) {
-                    vencimento.pagamentosMensais.push({ mes: periodoAtual, data: dataPagamentoHoje });
-                }
-            } else {
+        const vencimento = user.financas.vencimentos.id(req.params.id);
+        if (!vencimento) {
+            return res.status(404).json({ message: "Vencimento não encontrado." });
+        }
+
+        const dataPagamentoHoje = new Date().toLocaleDateString('pt-BR');
+        let hasChanged = false;
+
+        if (vencimento.recorrente) {
+            const hoje = new Date();
+            const periodoAtual = `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
+            const jaPagouEsteMes = vencimento.pagamentosMensais.some(p => p.mes === periodoAtual);
+
+            if (!jaPagouEsteMes) {
+                vencimento.pagamentosMensais.push({ mes: periodoAtual, data: dataPagamentoHoje });
+                hasChanged = true;
+            }
+        } else {
+            if (!vencimento.pago) {
                 vencimento.pago = true;
                 vencimento.dataPagamento = dataPagamentoHoje;
+                hasChanged = true;
             }
-            await user.save();
-            return res.status(200).json(vencimento);
         }
-        return res.status(404).json({ message: "Vencimento não encontrado." });
+
+        if (hasChanged) {
+            // Força o Mongoose a reconhecer a alteração no array de subdocumentos,
+            // corrigindo falhas de detecção de alteração que podem causar o erro ao salvar.
+            user.markModified('financas.vencimentos');
+            await user.save();
+        }
+        
+        return res.status(200).json(vencimento);
     } catch (error) {
-        console.error("Erro ao pagar vencimento:", error); // Log mais detalhado no servidor
+        console.error("Erro ao pagar vencimento:", error);
         res.status(500).json({ message: "Erro ao pagar vencimento." });
     }
 });
@@ -333,7 +345,15 @@ app.delete('/api/vencimentos/:id', authenticateToken, async (req, res) => {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
         
-        user.financas.vencimentos.pull({ _id: req.params.id });
+        const vencimento = user.financas.vencimentos.id(req.params.id);
+        if (!vencimento) {
+            return res.status(404).json({ message: "Vencimento não encontrado." });
+        }
+
+        // Utiliza o método .remove() no subdocumento. Esta é a forma canônica e segura
+        // de remover subdocumentos, garantindo a integridade dos dados e prevenindo erros
+        // em operações subsequentes de salvamento.
+        vencimento.remove();
 
         await user.save();
         return res.status(200).json({ message: "Vencimento removido permanentemente" });
