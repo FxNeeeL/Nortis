@@ -299,6 +299,7 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
+        
         const vencimento = user.financas.vencimentos.id(req.params.id);
         if (vencimento) {
             const dataPagamentoHoje = new Date().toLocaleDateString('pt-BR');
@@ -306,7 +307,9 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
                 const hoje = new Date();
                 const periodoAtual = `${hoje.getFullYear()}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}`;
                 
+                // MUDANÇA: Usando .some() para verificar se o pagamento já existe
                 const jaPagouEsteMes = vencimento.pagamentosMensais.some(p => p.mes === periodoAtual);
+
                 if (!jaPagouEsteMes) {
                     vencimento.pagamentosMensais.push({ mes: periodoAtual, data: dataPagamentoHoje });
                 }
@@ -319,9 +322,11 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
         }
         return res.status(404).json({ message: "Vencimento não encontrado." });
     } catch (error) {
+        console.error("Erro ao pagar vencimento:", error); // Log mais detalhado no servidor
         res.status(500).json({ message: "Erro ao pagar vencimento." });
     }
 });
+
 
 app.delete('/api/vencimentos/:id', authenticateToken, async (req, res) => {
     try {
