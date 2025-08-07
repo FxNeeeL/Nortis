@@ -40,8 +40,6 @@ body { font-family: var(--font-sans); background-color: var(--color-background);
 .app-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px; }
 h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
 
-/* === INÍCIO DAS ALTERAÇÕES === */
-
 .top-banner {
     display: flex;
     align-items: center;
@@ -63,52 +61,56 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
 .header-title { font-size: 2.2rem; margin: 0; }
 .current-month-indicator { font-family: var(--font-serif); font-size: 1.1rem; color: var(--color-secondary-text); margin-top: -8px; }
 
+/* === INÍCIO DAS ALTERAÇÕES === */
+
 .horizontal-menu {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 16px;
+    gap: 24px; /* Aumenta o espaçamento entre os botões */
     margin-bottom: 40px;
 }
+
 .horizontal-menu a, .horizontal-menu button {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 8px 16px;
+    padding: 10px 24px; /* Ajusta o padding interno */
     border-radius: 8px;
     text-decoration: none;
     color: var(--color-primary-text);
-    background: none;
-    border: none;
+    background-color: var(--color-surface); /* Adiciona cor de fundo */
+    border: 1px solid var(--color-border); /* Adiciona a borda */
     font-family: var(--font-sans);
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: all 0.2s ease;
     text-align: left;
     position: relative;
+    box-shadow: 0 2px 4px var(--color-shadow); /* Adiciona uma sombra sutil */
 }
+
 .horizontal-menu a:hover, .horizontal-menu button:hover {
     background-color: var(--color-background-hover);
+    border-color: var(--color-secondary-text);
+    transform: translateY(-2px); /* Efeito de elevação */
 }
+
+/* Remove a regra dos divisores antigos */
 .horizontal-menu a:not(:last-child)::after,
 .horizontal-menu button:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    right: -8px; /* Metade do gap */
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1px;
-    height: 16px;
-    background-color: var(--color-border);
-    transition: background-color 0.3s ease;
+    display: none;
 }
+
 .horizontal-menu i {
     font-size: 1.1rem;
     width: 20px;
     text-align: center;
     color: var(--color-secondary-text);
 }
+
+/* === FIM DAS ALTERAÇÕES === */
 
 .content-wrapper {
     display: flex;
@@ -126,8 +128,6 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
     /* Altura recalculada para o novo layout */
     max-height: calc(100vh - 560px); 
 }
-
-/* === FIM DAS ALTERAÇÕES === */
 
 .highlight-cards { display: flex; gap: 24px; flex-wrap: wrap; }
 .highlight-card { background-color: var(--color-surface); border-radius: 12px; padding: 16px 24px; box-shadow: 0 4px 20px var(--color-shadow); flex: 1; position: relative; transition: background-color 0.3s ease, box-shadow 0.3s ease; text-align: center; }
@@ -242,7 +242,6 @@ body.dark-mode .report-summary .summary-item.balance.positive p, body.dark-mode 
 .login-link a { color: var(--color-action); font-weight: 500; text-decoration: none; }
 .login-link a:hover { text-decoration: underline; }
 
-/* === MUDANÇA: Bloco de Media Query para Responsividade === */
 @media (max-width: 992px) {
     .app-container {
         padding: 24px 16px;
