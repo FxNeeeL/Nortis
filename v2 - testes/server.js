@@ -76,18 +76,33 @@ function parseCurrency(value) {
     return parseFloat(value.replace("R$", "").replace(/\./g, '').replace(',', '.')) || 0;
 }
 function calculateDiffDays(dueDate) {
-    // Cria um objeto de data para hoje à meia-noite em UTC
-    const hoje = new Date();
-    const hojeMeiaNoiteUTC = Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), hoje.getUTCDate());
+    const timeZone = 'America/Sao_Paulo';
 
-    // Cria um objeto de data para o vencimento à meia-noite em UTC a partir da string "YYYY-MM-DD"
-    const [ano, mes, dia] = dueDate.split('-').map(Number);
-    const dataVencimentoUTC = Date.UTC(ano, mes - 1, dia);
+    // Cria uma data UTC para a meia-noite do dia do vencimento.
+    const [dueYear, dueMonth, dueDay] = dueDate.split('-').map(Number);
+    const dueTimeUTC = Date.UTC(dueYear, dueMonth - 1, dueDay);
 
-    // Calcula a diferença em milissegundos, converte para dias e arredonda
-    const diffDias = (dataVencimentoUTC - hojeMeiaNoiteUTC) / (1000 * 60 * 60 * 24);
+    // Obtém a data e hora atual.
+    const now = new Date();
     
-    return Math.round(diffDias);
+    // Usa a API Intl para obter as partes da data (dia, mês, ano) de "agora" 
+    // especificamente para o fuso horário de São Paulo.
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric'
+    }).formatToParts(now).reduce((acc, part) => {
+        acc[part.type] = part.value;
+        return acc;
+    }, {});
+    
+    // Cria uma data UTC para a meia-noite de "hoje" em São Paulo.
+    const todayTimeUTC = Date.UTC(parts.year, parts.month - 1, parts.day);
+
+    // Calcula a diferença em milissegundos e converte para dias.
+    const diffTime = dueTimeUTC - todayTimeUTC;
+    return Math.round(diffTime / (1000 * 60 * 60 * 24));
 }
 
 // --- MIDDLEWARE DE AUTENTICAÇÃO ---
