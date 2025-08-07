@@ -77,16 +77,9 @@ function parseCurrency(value) {
 }
 function calculateDiffDays(dueDate) {
     const timeZone = 'America/Sao_Paulo';
-
-    // Cria uma data UTC para a meia-noite do dia do vencimento.
     const [dueYear, dueMonth, dueDay] = dueDate.split('-').map(Number);
     const dueTimeUTC = Date.UTC(dueYear, dueMonth - 1, dueDay);
-
-    // Obtém a data e hora atual.
     const now = new Date();
-    
-    // Usa a API Intl para obter as partes da data (dia, mês, ano) de "agora" 
-    // especificamente para o fuso horário de São Paulo.
     const parts = new Intl.DateTimeFormat('en-US', {
         timeZone,
         year: 'numeric',
@@ -96,13 +89,20 @@ function calculateDiffDays(dueDate) {
         acc[part.type] = part.value;
         return acc;
     }, {});
-    
-    // Cria uma data UTC para a meia-noite de "hoje" em São Paulo.
     const todayTimeUTC = Date.UTC(parts.year, parts.month - 1, parts.day);
-
-    // Calcula a diferença em milissegundos e converte para dias.
     const diffTime = dueTimeUTC - todayTimeUTC;
     return Math.round(diffTime / (1000 * 60 * 60 * 24));
+}
+
+function getBrazilianDateString() {
+    const timeZone = 'America/Sao_Paulo';
+    const now = new Date();
+    return new Intl.DateTimeFormat('pt-BR', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(now);
 }
 
 // --- MIDDLEWARE DE AUTENTICAÇÃO ---
@@ -335,7 +335,7 @@ app.put('/api/vencimentos/:id/pagar', authenticateToken, async (req, res) => {
         }
 
         const vencimento = user.financas.vencimentos.id(vencimentoId);
-        const dataPagamentoHoje = new Date().toLocaleDateString('pt-BR');
+        const dataPagamentoHoje = getBrazilianDateString(); // CORRIGIDO
         let updateQuery;
 
         if (vencimento.recorrente) {
