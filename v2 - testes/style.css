@@ -118,18 +118,13 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
     text-align: center;
 }
 
-/* === INÍCIO DAS ALTERAÇÕES === */
-
-/* Remove as regras específicas para .income-card, restaurando o comportamento padrão */
-
-/* === FIM DAS ALTERAÇÕES === */
-
 .content-wrapper {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
+/* === INÍCIO DA ALTERAÇÃO === */
 .bill-list {
     list-style: none;
     display: flex;
@@ -137,8 +132,11 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
     gap: 1.25rem;
     overflow-y: auto;
     padding-right: 10px;
-    max-height: calc(100vh - 580px); 
+    /* Valor ajustado para compensar a altura dos elementos e evitar rolagem da página */
+    max-height: calc(100vh - 620px); 
 }
+/* === FIM DA ALTERAÇÃO === */
+
 
 .highlight-header { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; width: 100%; }
 .highlight-card h3 { display: flex; align-items: center; gap: 8px; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; margin: 0; }
