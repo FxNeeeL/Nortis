@@ -65,42 +65,34 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
 
 .horizontal-menu {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 24px; /* Aumenta o espaçamento entre os botões */
-    margin-bottom: 40px;
+    gap: 24px; /* Usa o mesmo gap dos cards */
+    margin-bottom: 16px; /* Diminui a margem para alinhar melhor visualmente */
 }
 
 .horizontal-menu a, .horizontal-menu button {
+    flex: 1; /* Faz os botões ocuparem o mesmo espaço que os cards */
+    justify-content: center; /* Centraliza o conteúdo (ícone e texto) do botão */
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 24px; /* Ajusta o padding interno */
+    padding: 10px 24px;
     border-radius: 8px;
     text-decoration: none;
-    color: var(--color-primary-text);
-    background-color: var(--color-surface); /* Adiciona cor de fundo */
-    border: 1px solid var(--color-border); /* Adiciona a borda */
+    color: var(--color-secondary-text);
+    background-color: transparent; /* Fundo transparente por padrão */
+    border: 1px solid var(--color-border);
     font-family: var(--font-sans);
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: left;
-    position: relative;
-    box-shadow: 0 2px 4px var(--color-shadow); /* Adiciona uma sombra sutil */
 }
 
 .horizontal-menu a:hover, .horizontal-menu button:hover {
     background-color: var(--color-background-hover);
     border-color: var(--color-secondary-text);
-    transform: translateY(-2px); /* Efeito de elevação */
-}
-
-/* Remove a regra dos divisores antigos */
-.horizontal-menu a:not(:last-child)::after,
-.horizontal-menu button:not(:last-child)::after {
-    display: none;
+    color: var(--color-primary-text);
 }
 
 .horizontal-menu i {
@@ -108,6 +100,47 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
     width: 20px;
     text-align: center;
     color: var(--color-secondary-text);
+}
+
+.highlight-cards {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.highlight-card {
+    background-color: var(--color-surface);
+    border-radius: 12px;
+    padding: 16px 24px;
+    box-shadow: 0 4px 20px var(--color-shadow);
+    flex: 1;
+    position: relative;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+}
+
+.income-card {
+    background-color: var(--color-positive);
+    color: white; /* Cor padrão para todo o texto dentro */
+}
+
+.income-card h3,
+.income-card .highlight-amount,
+.income-card h3 i {
+    color: white !important; /* Força a cor branca sobrepondo outras regras */
+}
+
+.income-card .edit-income-btn {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.income-card .edit-income-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white !important;
+}
+
+body.dark-mode .income-card {
+    background-color: #38a169; /* Um tom de verde que se destaca no modo escuro */
 }
 
 /* === FIM DAS ALTERAÇÕES === */
@@ -125,12 +158,9 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
     gap: 1.25rem;
     overflow-y: auto;
     padding-right: 10px;
-    /* Altura recalculada para o novo layout */
-    max-height: calc(100vh - 560px); 
+    max-height: calc(100vh - 580px); /* Altura recalculada para o novo layout */
 }
 
-.highlight-cards { display: flex; gap: 24px; flex-wrap: wrap; }
-.highlight-card { background-color: var(--color-surface); border-radius: 12px; padding: 16px 24px; box-shadow: 0 4px 20px var(--color-shadow); flex: 1; position: relative; transition: background-color 0.3s ease, box-shadow 0.3s ease; text-align: center; }
 .highlight-header { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; width: 100%; }
 .highlight-card h3 { display: flex; align-items: center; gap: 8px; color: var(--color-secondary-text); font-size: 1.1rem; font-weight: 500; margin: 0; }
 .highlight-amount { font-size: 2rem; font-weight: 700; color: var(--color-primary-text); margin: 0; text-align: center; }
@@ -262,13 +292,7 @@ body.dark-mode .report-summary .summary-item.balance.positive p, body.dark-mode 
         padding: 32px 24px;
     }
     .horizontal-menu {
-        flex-wrap: wrap; /* Permite que o menu quebre a linha */
-        gap: 8px;
-        margin-bottom: 32px;
-    }
-    .horizontal-menu a:not(:last-child)::after,
-    .horizontal-menu button:not(:last-child)::after {
-        display: none; /* Oculta os divisores */
+        flex-direction: column; /* Empilha os botões em telas menores */
     }
 }
 
