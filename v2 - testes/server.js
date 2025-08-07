@@ -76,13 +76,18 @@ function parseCurrency(value) {
     return parseFloat(value.replace("R$", "").replace(/\./g, '').replace(',', '.')) || 0;
 }
 function calculateDiffDays(dueDate) {
+    // Cria um objeto de data para hoje à meia-noite em UTC
     const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
+    const hojeMeiaNoiteUTC = Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), hoje.getUTCDate());
+
+    // Cria um objeto de data para o vencimento à meia-noite em UTC a partir da string "YYYY-MM-DD"
     const [ano, mes, dia] = dueDate.split('-').map(Number);
-    const dataVencimento = new Date(ano, mes - 1, dia);
-    dataVencimento.setHours(0, 0, 0, 0);
-    const diffTime = dataVencimento - hoje;
-    return Math.round(diffTime / (1000 * 60 * 60 * 24));
+    const dataVencimentoUTC = Date.UTC(ano, mes - 1, dia);
+
+    // Calcula a diferença em milissegundos, converte para dias e arredonda
+    const diffDias = (dataVencimentoUTC - hojeMeiaNoiteUTC) / (1000 * 60 * 60 * 24);
+    
+    return Math.round(diffDias);
 }
 
 // --- MIDDLEWARE DE AUTENTICAÇÃO ---
