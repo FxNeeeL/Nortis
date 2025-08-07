@@ -37,19 +37,98 @@ body.dark-mode {
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--font-sans); background-color: var(--color-background); color: var(--color-primary-text); line-height: 1.6; transition: background-color 0.3s ease, color 0.3s ease; }
-.app-container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 60px 24px 40px 24px; }
+.app-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px; }
 h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; }
-.main-layout-grid { display: grid; grid-template-columns: 1fr 2.5fr; gap: 32px; align-items: start; }
-.left-column { position: sticky; top: 40px; display: flex; flex-direction: column; gap: 24px; }
-.right-column { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
-header { flex-shrink: 0; }
-.header-main { display: flex; justify-content: space-between; align-items: flex-start; }
+
+/* === INÍCIO DAS ALTERAÇÕES === */
+
+.top-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    transition: all 0.3s ease;
+}
+.banner-icon { font-size: 1.2rem; }
+.banner-title { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; }
+.banner-slogan { color: var(--color-secondary-text); }
+
+.main-greeting {
+    text-align: center;
+    margin-bottom: 24px;
+}
 .header-title { font-size: 2.2rem; margin: 0; }
 .current-month-indicator { font-family: var(--font-serif); font-size: 1.1rem; color: var(--color-secondary-text); margin-top: -8px; }
-.vertical-menu { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
-.vertical-menu a, .vertical-menu button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; text-decoration: none; color: var(--color-primary-text); background: none; border: none; font-family: var(--font-sans); font-size: 1.1rem; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; text-align: left; }
-.vertical-menu a:hover, .vertical-menu button:hover { background-color: var(--color-background-hover); }
-.vertical-menu i { font-size: 1.2rem; width: 20px; text-align: center; color: var(--color-secondary-text); }
+
+.horizontal-menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+}
+.horizontal-menu a, .horizontal-menu button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--color-primary-text);
+    background: none;
+    border: none;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    text-align: left;
+    position: relative;
+}
+.horizontal-menu a:hover, .horizontal-menu button:hover {
+    background-color: var(--color-background-hover);
+}
+.horizontal-menu a:not(:last-child)::after,
+.horizontal-menu button:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -8px; /* Metade do gap */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 16px;
+    background-color: var(--color-border);
+    transition: background-color 0.3s ease;
+}
+.horizontal-menu i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    color: var(--color-secondary-text);
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.bill-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    overflow-y: auto;
+    padding-right: 10px;
+    /* Altura recalculada para o novo layout */
+    max-height: calc(100vh - 560px); 
+}
+
+/* === FIM DAS ALTERAÇÕES === */
+
 .highlight-cards { display: flex; gap: 24px; flex-wrap: wrap; }
 .highlight-card { background-color: var(--color-surface); border-radius: 12px; padding: 16px 24px; box-shadow: 0 4px 20px var(--color-shadow); flex: 1; position: relative; transition: background-color 0.3s ease, box-shadow 0.3s ease; text-align: center; }
 .highlight-header { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; width: 100%; }
@@ -63,7 +142,6 @@ header { flex-shrink: 0; }
 .card-vencimentos { display: flex; flex-direction: column; min-height: 0; }
 .card { background-color: var(--color-surface); padding: 24px; border-radius: 12px; box-shadow: 0 4px 20px var(--color-shadow); transition: background-color 0.3s ease, box-shadow 0.3s ease; }
 .card h2 { margin-bottom: 16px; font-size: 1.5rem; }
-.bill-list { list-style: none; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; padding-right: 10px; max-height: calc(100vh - 450px); }
 .bill-list::-webkit-scrollbar { width: 8px; }
 .bill-list::-webkit-scrollbar-track { background: var(--color-background); }
 .bill-list::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
@@ -167,18 +245,7 @@ body.dark-mode .report-summary .summary-item.balance.positive p, body.dark-mode 
 /* === MUDANÇA: Bloco de Media Query para Responsividade === */
 @media (max-width: 992px) {
     .app-container {
-        padding: 40px 16px 24px 16px;
-    }
-    .main-layout-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-    .left-column {
-        position: static;
-        order: 2; /* Menu e saudação vão para baixo */
-    }
-    .right-column {
-        order: 1; /* Conteúdo principal vai para cima */
+        padding: 24px 16px;
     }
     .header-title {
         font-size: 1.8rem;
@@ -187,12 +254,30 @@ body.dark-mode .report-summary .summary-item.balance.positive p, body.dark-mode 
         font-size: 1.75rem;
     }
     .bill-list {
-        max-height: none;
+        max-height: none; /* Em telas pequenas, permite rolagem da página */
         overflow-y: visible;
         padding-right: 0;
     }
     .modal-content {
         width: 95%;
         padding: 32px 24px;
+    }
+    .horizontal-menu {
+        flex-wrap: wrap; /* Permite que o menu quebre a linha */
+        gap: 8px;
+        margin-bottom: 32px;
+    }
+    .horizontal-menu a:not(:last-child)::after,
+    .horizontal-menu button:not(:last-child)::after {
+        display: none; /* Oculta os divisores */
+    }
+}
+
+@media (max-width: 480px) {
+    .banner-slogan {
+        display: none; /* Oculta o slogan em telas muito pequenas */
+    }
+    .highlight-cards {
+        flex-direction: column;
     }
 }

@@ -20,59 +20,61 @@
     </script>
 </head>
 <body>
+    <div class="top-banner">
+        <span class="banner-icon">⭐</span>
+        <span class="banner-title">Nortis</span>
+        <span class="banner-slogan">Seu guia financeiro</span>
+    </div>
+
     <div class="app-container">
-        <div class="main-layout-grid">
-            <aside class="left-column">
-                <header>
-                    <div class="header-main">
-                        <h1 class="header-title"></h1>
+        <header class="main-greeting">
+            <h1 class="header-title"></h1>
+            <p class="current-month-indicator"></p>
+        </header>
+
+        <nav class="horizontal-menu">
+            <a href="history.html" id="history-btn">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <button id="theme-toggle-btn">
+                <i class="fas fa-moon"></i>
+                <span>Modo Escuro</span>
+            </button>
+            <button id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </button>
+        </nav>
+
+        <div class="content-wrapper">
+            <section class="highlight-cards">
+                <div class="card highlight-card">
+                    <div class="highlight-header"><h3><i class="fas fa-arrow-up positive"></i> Salário</h3><button class="edit-income-btn" data-type="salario"><i class="fas fa-pencil-alt"></i></button></div>
+                    <p class="highlight-amount positive" id="renda-salario">R$ 0,00</p>
+                </div>
+                <div class="card highlight-card">
+                    <div class="highlight-header"><h3><i class="fas fa-arrow-up positive"></i> Vale</h3><button class="edit-income-btn" data-type="vale"><i class="fas fa-pencil-alt"></i></button></div>
+                    <p class="highlight-amount positive" id="renda-vale">R$ 0,00</p>
+                </div>
+                <div class="card highlight-card">
+                    <div class="highlight-header"><h3><i class="fas fa-balance-scale positive"></i> Saldo Atual</h3></div>
+                    <p class="highlight-amount" id="saldo-atual">R$ 0,00</p>
+                </div>
+            </section>
+            <main class="dashboard-grid">
+                <div class="card card-vencimentos">
+                    <div class="card-header">
+                        <h2>Próximos Vencimentos</h2>
+                        <button class="add-btn" id="add-due-date-btn"><i class="fas fa-plus"></i></button>
                     </div>
-                    <p class="current-month-indicator"></p>
-                </header>
-                <nav class="vertical-menu">
-                    <a href="history.html" id="history-btn">
-                        <i class="fas fa-history"></i>
-                        <span>Histórico</span>
-                    </a>
-                    <button id="theme-toggle-btn">
-                        <i class="fas fa-moon"></i>
-                        <span>Modo Escuro</span>
-                    </button>
-                    <button id="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Sair</span>
-                    </button>
-                </nav>
-            </aside>
-            <div class="right-column">
-                <section class="highlight-cards">
-                    <div class="card highlight-card">
-                        <div class="highlight-header"><h3><i class="fas fa-arrow-up positive"></i> Salário</h3><button class="edit-income-btn" data-type="salario"><i class="fas fa-pencil-alt"></i></button></div>
-                        <p class="highlight-amount positive" id="renda-salario">R$ 0,00</p>
+                    <div class="card-footer">
+                        <span>Total a Vencer:</span>
+                        <span id="vencimentos-total">R$ 0,00</span>
                     </div>
-                    <div class="card highlight-card">
-                        <div class="highlight-header"><h3><i class="fas fa-arrow-up positive"></i> Vale</h3><button class="edit-income-btn" data-type="vale"><i class="fas fa-pencil-alt"></i></button></div>
-                        <p class="highlight-amount positive" id="renda-vale">R$ 0,00</p>
-                    </div>
-                    <div class="card highlight-card">
-                        <div class="highlight-header"><h3><i class="fas fa-balance-scale positive"></i> Saldo Atual</h3></div>
-                        <p class="highlight-amount" id="saldo-atual">R$ 0,00</p>
-                    </div>
-                </section>
-                <main class="dashboard-grid">
-                    <div class="card card-vencimentos">
-                        <div class="card-header">
-                            <h2>Próximos Vencimentos</h2>
-                            <button class="add-btn" id="add-due-date-btn"><i class="fas fa-plus"></i></button>
-                        </div>
-                        <div class="card-footer">
-                            <span>Total a Vencer:</span>
-                            <span id="vencimentos-total">R$ 0,00</span>
-                        </div>
-                        <ul class="bill-list"></ul>
-                    </div>
-                </main>
-            </div>
+                    <ul class="bill-list"></ul>
+                </div>
+            </main>
         </div>
     </div>
     <!-- Modais -->
